@@ -92,6 +92,7 @@ def value_iteration(mdp, epsilon=0.001):
     "Solving an MDP by value iteration. [Fig. 17.4]"
     U1 = dict([(s, 0) for s in mdp.states])
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
+    iters = 0
     while True:
         U = U1.copy()
         delta = 0
@@ -101,6 +102,8 @@ def value_iteration(mdp, epsilon=0.001):
             delta = max(delta, abs(U1[s] - U[s]))
         if delta < epsilon * (1 - gamma) / gamma:
              return U
+        iters+= 1
+        print iters
 
 def best_policy(mdp, U):
     """Given an MDP and a utility function U, determine the best policy,
@@ -119,16 +122,18 @@ def policy_iteration(mdp):
     "Solve an MDP by policy iteration [Fig. 17.7]"
     U = dict([(s, 0) for s in mdp.states])
     pi = dict([(s, random.choice(mdp.actions(s))) for s in mdp.states])
+    iters = 0
     while True:
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
-        for s in mdp.states:
+        for i, s in enumerate(mdp.states):
             a = argmax(mdp.actions(s), lambda a: expected_utility(a,s,U,mdp))
             if a != pi[s]:
                 pi[s] = a
                 unchanged = False
         if unchanged:
             return pi
+        iters += 1
 
 def policy_evaluation(pi, U, mdp, k=20):
     """Return an updated utility mapping U from each state in the MDP to its
