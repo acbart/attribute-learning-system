@@ -7,13 +7,13 @@ import operator
 def div(left, right):
     try:
         return left / right
-    except ValueError:
+    except ZeroDivisionError:
         return 0
         
 def floordiv(left, right):
     try:
         return left // right
-    except ValueError:
+    except ZeroDivisionError:
         return 0
         
 def safelog(value):
@@ -27,6 +27,12 @@ def safesqrt(value):
         return math.sqrt(value)
     except ValueError:
         return 0
+
+def safefmod(left, right):
+    try:
+        return math.fmod(left, right)
+    except ValueError:
+        return 0        
         
 def sqr(value):
     return value ** 2
@@ -34,7 +40,7 @@ def sqr(value):
 UNARY_OPERATORS = [sqr, safesqrt, math.ceil, 
                    math.floor, safelog]
 BINARY_OPERATORS = [operator.add, operator.mul, operator.sub, 
-                    math.fmod, div, floordiv]
+                    safefmod, div, floordiv]
 
 # given a vector of variables A, we want to define a random function
 #   F such that F: A -> A'. The function F can use any combination of 
@@ -158,7 +164,6 @@ class UnaryNode(Node):
         self.child = child
         
     def value(self, state):
-        print self.operator, self.child.value(state)
         return self.operator(self.child.value(state))
         
     def __len__(self):
@@ -245,7 +250,6 @@ class BinaryNode(Node):
         return 1+len(self.left)+len(self.right)
         
     def value(self, state):
-        print self.operator, self.left.value(state), self.right.value(state)
         return self.operator(self.left.value(state), self.right.value(state))
         
     def copy(self):
@@ -303,7 +307,7 @@ class BinaryNode(Node):
             else:
                 return other.copy()
             
-def random_tree(height=3):
+def random_tree(height=2):
     if height == 0:
         return random_terminal()
     node = random.choice(("terminal", "binary", "unary"))
