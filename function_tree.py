@@ -35,7 +35,7 @@ def safefmod(left, right):
         return 0        
         
 def sqr(value):
-    return value ** 2
+    return min(value ** 2, 200)
         
 UNARY_OPERATORS = [sqr, safesqrt, math.ceil, 
                    math.floor, safelog]
