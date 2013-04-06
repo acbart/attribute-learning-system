@@ -71,10 +71,14 @@ BINARY_OPERATORS = [operator.add, operator.mul, operator.sub,
 # +X, -X, /X, *X, **X, //X : a -> a'
 # a : -> a'
 
+HEIGHT_MAX = 2
+
 class Node(object): pass
 
 class TerminalNode(Node):
-    def mutate(self):
+    def mutate(self, height_left):
+        if height_left <= 0:
+            return random_terminal()
         mutation = random.choice(("change", "single_parent", "binary_left", "binary_right"))
         if mutation == "change":
             return random_terminal()
@@ -91,9 +95,9 @@ class TerminalNode(Node):
     def inorder(self):
         yield self
         
-    def mutate_randomly(self, mutant, index):
+    def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
-            return self.mutate(), len(self)
+            return self.mutate(height_left), len(self)
         else:
             return self.copy(), len(self)
             
@@ -172,7 +176,7 @@ class UnaryNode(Node):
     def copy(self):
         return UnaryNode(self.child.copy(), self.operator)
     
-    def mutate(self):
+    def mutate(self, height_left):
         mutation = random.choice(("orphan", "change", "add_right", "add_right"))
         if mutation == "orphan":
             return self.child.copy()
@@ -183,11 +187,11 @@ class UnaryNode(Node):
         elif mutation == "add_left":
             return BinaryNode(right = self.child.copy())
             
-    def mutate_randomly(self, mutant, index):
+    def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
-            return self.mutate(), len(self)
+            return self.mutate(height_left), len(self)
         else:
-            child, child_size = self.child.mutate_randomly(mutant, index+1)
+            child, child_size = self.child.mutate_randomly(mutant, index+1, height_left-1)
             return UnaryNode(child, self.operator), 1+child_size
             
     def inorder(self):
@@ -258,15 +262,15 @@ class BinaryNode(Node):
     def __str__(self):
         return "%s(%s, %s)" % (self.operator.__name__, str(self.left), str(self.right))
         
-    def mutate_randomly(self, mutant, index):
+    def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
-            return self.mutate(), len(self)
+            return self.mutate(height_left), len(self)
         else:
-            left, left_subtree_size = self.left.mutate_randomly(mutant, index+1)
-            right, right_subtree_size = self.right.mutate_randomly(mutant, index+1+left_subtree_size)
+            left, left_subtree_size = self.left.mutate_randomly(mutant, index+1, height_left-1)
+            right, right_subtree_size = self.right.mutate_randomly(mutant, index+1+left_subtree_size, height_left-1)
             return BinaryNode(left, right, self.operator), 1+left_subtree_size+right_subtree_size
         
-    def mutate(self):
+    def mutate(self, height_left):
         mutation = random.choice(("orphan_left", "orphan_right", "change", "remove_right", "remove_left"))
         if mutation == "orphan_left":
             return self.left.copy()
@@ -307,7 +311,7 @@ class BinaryNode(Node):
             else:
                 return other.copy()
             
-def random_tree(height=2):
+def random_tree(height=HEIGHT_MAX):
     if height == 0:
         return random_terminal()
     node = random.choice(("terminal", "binary", "unary"))
@@ -329,7 +333,7 @@ class FunctionTree(object):
     
     def mutate(self):
         mutant = random.randrange(len(self.root))
-        return FunctionTree(self.root.mutate_randomly(mutant, 0)[0])
+        return FunctionTree(self.root.mutate_randomly(mutant, 0, HEIGHT_MAX)[0])
     
     def cross_over(self, other):
         return FunctionTree(self.root.cross_over(other.root))
