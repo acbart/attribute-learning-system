@@ -1,3 +1,6 @@
+import random
+#random.seed(42)
+
 from function_tree import FunctionTree
 
 from simpleai.search.local import genetic
@@ -28,7 +31,9 @@ class FunProblem(SearchProblem):
         
     def value(self, state):
         b = BattleState(100, 10, 10, 100, 10, 10)
-        return state.value(b)
-        
-n = genetic(FunProblem(FunctionTree()), population_size=200)
-print n.state
+        return - abs(42 - state.value(b)) * (4. / float(len(state)))
+
+print "I'll try 10 times to find a cool equation"
+for x in xrange(10):
+    n = genetic(FunProblem(FunctionTree()), population_size=300)
+    print "Attempt", x, "was",n.state, n.state.value(BattleState(100, 10, 10, 100, 10, 10))

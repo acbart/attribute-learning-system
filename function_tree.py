@@ -1,5 +1,4 @@
 import random
-random.seed(42)
 
 import math
 import operator
@@ -37,7 +36,7 @@ def safefmod(left, right):
 def sqr(value):
     return min(value ** 2, 200)
         
-UNARY_OPERATORS = [sqr, safesqrt, math.ceil, 
+UNARY_OPERATORS = [safesqrt, math.ceil, #sqr, 
                    math.floor, safelog]
 BINARY_OPERATORS = [operator.add, operator.mul, operator.sub, 
                     safefmod, div, floordiv]
