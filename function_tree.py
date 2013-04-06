@@ -7,20 +7,32 @@ import operator
 def div(left, right):
     try:
         return left / right
-    except ZeroDivisionError:
+    except ValueError:
         return 0
         
 def floordiv(left, right):
     try:
         return left // right
-    except ZeroDivisionError:
+    except ValueError:
+        return 0
+        
+def safelog(value):
+    try:
+        return math.log(value)
+    except ValueError:
+        return 0
+        
+def safesqrt(value):
+    try:
+        return math.sqrt(value)
+    except ValueError:
         return 0
         
 def sqr(value):
     return value ** 2
         
-UNARY_OPERATORS = [sqr, math.sqrt, math.ceil, 
-                   math.floor, math.log]
+UNARY_OPERATORS = [sqr, safesqrt, math.ceil, 
+                   math.floor, safelog]
 BINARY_OPERATORS = [operator.add, operator.mul, operator.sub, 
                     math.fmod, div, floordiv]
 
@@ -146,6 +158,7 @@ class UnaryNode(Node):
         self.child = child
         
     def value(self, state):
+        print self.operator, self.child.value(state)
         return self.operator(self.child.value(state))
         
     def __len__(self):
@@ -232,6 +245,7 @@ class BinaryNode(Node):
         return 1+len(self.left)+len(self.right)
         
     def value(self, state):
+        print self.operator, self.left.value(state), self.right.value(state)
         return self.operator(self.left.value(state), self.right.value(state))
         
     def copy(self):
