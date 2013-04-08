@@ -1,45 +1,7 @@
 import random
 
-import math
-import operator
+from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, clamp
 
-def div(left, right):
-    try:
-        return left / right
-    except ZeroDivisionError:
-        return 0
-        
-def floordiv(left, right):
-    try:
-        return left // right
-    except ZeroDivisionError:
-        return 0
-        
-def safelog(value):
-    try:
-        return math.log(value)
-    except ValueError:
-        return 0
-        
-def safesqrt(value):
-    try:
-        return math.sqrt(value)
-    except ValueError:
-        return 0
-
-def safefmod(left, right):
-    try:
-        return math.fmod(left, right)
-    except ValueError:
-        return 0        
-        
-def sqr(value):
-    return min(value ** 2, 200)
-        
-UNARY_OPERATORS = [safesqrt, math.ceil, #sqr, 
-                   math.floor, safelog]
-BINARY_OPERATORS = [operator.add, operator.mul, operator.sub, 
-                    safefmod, div, floordiv]
 
 # given a vector of variables A, we want to define a random function
 #   F such that F: A -> A'. The function F can use any combination of 
@@ -71,6 +33,7 @@ BINARY_OPERATORS = [operator.add, operator.mul, operator.sub,
 # a : -> a'
 
 HEIGHT_MAX = 2
+RANDOM_VARIABLES = False
 
 class Node(object): pass
 
@@ -152,7 +115,7 @@ class ConstantNode(TerminalNode):
         return str(self._value)
 
 def random_terminal():
-    if random.choice((True, False)):
+    if not RANDOM_VARIABLES or random.choice((True, False)):
         return AttributeNode()
     else:
         return ConstantNode()
@@ -199,7 +162,7 @@ class UnaryNode(Node):
             yield x
             
     def __str__(self):
-        return "%s(%s)" % (self.operator.__name__, str(self.child))
+        return self.operator.string_template % (str(self.child),)
     
     def cross_over(self, other):
         dominant = random.choice((True, False))
@@ -259,7 +222,7 @@ class BinaryNode(Node):
         return BinaryNode(self.left.copy(), self.right.copy(), self.operator)
     
     def __str__(self):
-        return "%s(%s, %s)" % (self.operator.__name__, str(self.left), str(self.right))
+        return self.operator.string_template % (str(self.left), str(self.right))
         
     def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
@@ -328,7 +291,7 @@ class FunctionTree(object):
         self.root = root
     
     def copy(self):
-        return self.root.copy()
+        return FunctionTree(self.root.copy())
     
     def mutate(self):
         mutant = random.randrange(len(self.root))
@@ -347,19 +310,5 @@ class FunctionTree(object):
         return str(self.root)
     
     def value(self, state):
-        return self.root.value(state)
+        return clamp(self.root.value(state))
         
-# for x in xrange(5):
-    # ft = FunctionTree()
-    # print x, "Orgnal:", ft
-    # m =ft.mutate()
-    # print x, "Mutant:", m
-    
-# print ""
-
-# for x in xrange(5):
-    # dad, mom = FunctionTree(), FunctionTree()
-    # print x, "Dad:", dad
-    # print x, "Mom:", mom
-    # kid = mom.cross_over(dad)
-    # print x, "Kid:", kid
