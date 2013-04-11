@@ -1,40 +1,121 @@
 import random
+from random import choice
 random.seed(42)
 
+from collections import Counter
+
 from function_tree import FunctionTree, AttributeNode
+from players import PLAYERS
 
 from simpleai.search.local import genetic
 from simpleai.search import SearchProblem
 
 class BattleState(object):
     __slots__ = ["health_1", "attack_1", "defense_1",
-                 "health_2", "attack_2", "defense_2",
-                 "turn"]
-    def __init__(self, h1, a1, d1, h2, a2, d2):
-        self.health_1 = h1
-        self.attack_1 = a1
-        self.defense_1 = d1 
-        self.health_2 = h2 
-        self.attack_2 = a2 
-        self.defense_2 = d2
-        self.turn = True
+                 "health_2", "attack_2", "defense_2"]
+    def __init__(self, player_1=None, player_2=None, other = None):
+        if other is not None:
+            self.health_1 = other.health_1
+            self.attack_1 = other.attack_1
+            self.defense_1 = other.defense_1
+            self.health_2 = other.health_2
+            self.attack_2 = other.attack_2
+            self.defense_2 = other.defense_2
+        else:
+            self.health_1, self.attack_1, self.defense_1 = player_1.get_initial_stats()
+            self.health_2, self.attack_2, self.defense_2 = player_2.get_initial_stats()
+    
+    def flip(self):
+        self.health_1, self.health_2 = self.health_2, self.health_1
+        self.attack_1, self.attack_2 = self.attack_2, self.attack_1
+        self.defense_1, self.defense_2 = self.defense_2, self.defense_1
+
+    def players_alive(self):
+        return self.health_1 > 0 and self.health_2 > 0
+    
+    def value(self):
+        return self.health_1 - self.health_2
         
-def battle_simulation(moveset, player1, player2):
-    return sum([len(move) for move in moveset.moves])
+    def __str__(self):
+        return "(H: %d, A: %d, D: %d), (H: %d, A: %d, D: %d)" % (self.health_1, self.attack_1, self.defense_1,self.health_2, self.attack_2, self.defense_2)
+        
+battle_log = open('battle_log.log', 'w')
+battle_log.write("LET MORTAL COMBAT COMMENCE!\n")
+battle_log.close()
+battle_log = open('battle_log.log', 'a')
+def battle_simulation(moves, player_1, player_2):
+    """
+    Performs a battle simulation, where player1 and player2 take turns using
+    moves until someone dies.
+    """
+    battle_state = BattleState(player_1, player_2)
+    p1, p2 = player_1.__name__, player_2.__name__
+    battle_log.write("New battle between %s and %s!\n" % (p1, p2))
+    turns = 0
+    battle_log.write("Initial: %s" % (str(battle_state),))
+    move_usage= Counter()
+    while battle_state.players_alive() and turns < 15:
+        battle_log.write("\tTurn %d\n" % (turns+1,))
+        battle_state, move1 = player_1.move(battle_state)
+        battle_log.write("\t\tPlayer 1's move: %s\n" % (str(move1),))
+        #battle_log.write("\t\t\t%s\n" % (str(battle_state),))
+        battle_state, move2 = player_2.move(battle_state)
+        battle_log.write("\t\tPlayer 2's move: %s\n" % (str(move2),))
+        battle_log.write("\t\t\t%s\n" % (str(battle_state),))
+        move_usage[id(move1)]+= 1
+        move_usage[id(move2)]+= 1
+        turns += 1
+    if battle_state.health_1 <= 0 and battle_state.health_2 <= 0:
+        battle_log.write("It was a tie after %d rounds!\n" % (turns,))
+    elif battle_state.health_1 <= 0:
+        battle_log.write("Player 2 (%s) won in %d rounds!\n" % (p2, turns))
+    elif battle_state.health_2 <= 0:
+        battle_log.write("Player 1 (%s) won in %d rounds!\n" % (p1, turns))
+    else:
+        battle_log.write("No one won. That battle sucked!\n")
+    total_moves = float(len(moves.moves))
+    ideal = 100. / total_moves
+    values = [100. * v/(turns*2.) for v in move_usage.values()]
+    values += [0 for x in xrange(int(total_moves - len(move_usage)))]
+    ideal_usages = sum([abs(ideal - value) for value in values])
+    ideal_turns = abs(10 - turns)*10
+    ideal_life = battle_state.health_1 + battle_state.health_2
+    return -ideal_turns - ideal_usages - ideal_life
 
 def random_subset(list):
-    return random.sample(list, random.randint(1, 1))#len(list)))
+    return random.sample(list, random.randint(1, 3))#len(list)))
+
+feature_occurrences = {"health_1" : 1, "attack_1" : 2, 
+                       "defense_1" : 2, "health_2" : 8, 
+                       "attack_2" : 2, "defense_2" : 2}
+def add_feature_if_new(feature, current):
+    if feature not in current:
+        return [feature] * feature_occurrences[feature]
+    else:
+        return []
     
 class Move(dict):
     all_features = ["health_1", "attack_1", "defense_1", "health_2", "attack_2", "defense_2"]
     
     def fill_randomly(self):
-        for feature in random_subset(self.all_features):
-            self[feature] = FunctionTree(AttributeNode(feature))
+        #for feature in random_subset(self.all_features):
+        #    self[feature] = FunctionTree(AttributeNode(feature))
+        #    for x in xrange(100): # RADIATION
+        #        self[feature] = self[feature].mutate()
+        #return self
+        # Alternate method where damaging attacks are much more likely
+        features = []
+        for x in xrange(random.choice((1, 1, 1, 1, 2, 2, 3))):
+            possibilities = []
+            for feature in self.all_features:
+                possibilities.extend(add_feature_if_new(feature, features))
+            features.append(random.choice(possibilities))
+        for feature in features:
+            self[feature] = FunctionTree(AttributeNode(feature, lock=True))
             for x in xrange(100): # RADIATION
                 self[feature] = self[feature].mutate()
         return self
-            
+        
     def copy(self):
         new_move = Move()
         for k, v in self.iteritems():
@@ -63,6 +144,13 @@ class Move(dict):
                 if random.choice((True, False)):
                     new_move[feature] = other[feature].copy()
         return new_move
+        
+    def apply(self, state):
+        new_battle_state = BattleState(other = state)
+        for feature, function in self.iteritems():
+            setattr(new_battle_state, feature, function.value(state))
+        new_battle_state.flip()
+        return new_battle_state
         
     def __str__(self):
         return "{%s}" % (", ".join("%s <= %s" % (k, v) for k,v in self.iteritems()),)
@@ -93,8 +181,12 @@ class MoveList(object):
         return "[%s]" % (", ".join(map(str, self.moves)),)
 
 class FunProblem(SearchProblem):
-    def __init__(self, player1, player2):
+    def __init__(self, player1 = None, player2 = None):
         SearchProblem.__init__(self, MoveList())
+        if player1 is None:
+            player1 = random.choice(PLAYERS)
+        if player2 is None:
+            player2 = random.choice(PLAYERS)
         self.player1 = player1
         self.player2 = player2
         
@@ -108,14 +200,13 @@ class FunProblem(SearchProblem):
         return state.mutate()
         
     def value(self, state):
-        return battle_simulation(state, self.player1, self.player2)
+        return battle_simulation(state, self.player1(state), self.player2(state))
         
     def pprint(self, state):
         return "\n".join(["Move %d:\n\t%s" % (i, "\n\t".join([k+": "+str(v) for k, v in s.iteritems()])) for i, s in enumerate(state)])
         
-
 for x in xrange(1):
-    n = genetic(FunProblem(None, None), population_size=500, iterations_limit=10, mutation_chance = .1)
+    n = genetic(FunProblem(), population_size=5, iterations_limit=1, mutation_chance = .1)
     for i, move in enumerate(n.state.moves):
         print "Move", 1+i
         for k, v in move.iteritems():

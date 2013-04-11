@@ -29,10 +29,18 @@ class BoundedPriorityQueue(list):
             self.append(x)
 
     def clear(self):
-        for x in self:
-            self.remove(x)
-
-
+        while self:
+            self.pop()
+            
+    def clear_worst_half(self):
+        goal_size = int(len(self) / 2.)
+        backup = []
+        while len(self) > goal_size:
+            backup.append(self.pop())
+        self.clear()
+        for x in backup:
+            self.append(x)
+            
 class InverseTransformSampler(object):
     def __init__(self, weights, objects):
         assert weights and objects and len(weights) == len(objects)

@@ -1,5 +1,8 @@
 import random
 
+from random import choice
+BOOLEANS = (True, False)
+
 from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, clamp
 
 
@@ -41,7 +44,10 @@ class TerminalNode(Node):
     def mutate(self, height_left):
         if height_left <= 0:
             return random_terminal()
-        mutation = random.choice(("change", "single_parent", "binary_left", "binary_right"))
+        if self.is_locked():
+            mutation = choice(("single_parent", "binary_left", "binary_right"))
+        else:
+            mutation = choice(("change", "single_parent", "binary_left", "binary_right"))
         if mutation == "change":
             return random_terminal()
         elif mutation == "single_parent":
@@ -49,7 +55,7 @@ class TerminalNode(Node):
         elif mutation == "binary_left":
             return BinaryNode(left=self.copy())
         elif mutation == "binary_right":
-            return BinaryNode(right =self.copy())
+            return BinaryNode(right=self.copy())
     
     def __len__(self):
         return 1
@@ -63,32 +69,41 @@ class TerminalNode(Node):
         else:
             return self.copy(), len(self)
             
-    def cross_over(self, other):
-        dominant = random.choice((True, False))
-        chance = random.choice((True, False))
+    def cross_over(self, other, sl):
+        if sl and self.is_locked:
+            return self.copy()
+        elif not sl and other.is_locked:
+            return other.cross_over(self, not sl)
+        dominant = choice(BOOLEANS)
+        chance = choice(BOOLEANS)
         if dominant:
             return self.copy()
         else:
             if isinstance(other, UnaryNode):
-                return UnaryNode(other.child.cross_over(self), other.operator)
+                return UnaryNode(other.child.cross_over(self, sl), 
+                                 other.operator)
             if isinstance(other, BinaryNode):
                 if chance:
-                    return BinaryNode(other.left.cross_over(self), 
+                    return BinaryNode(other.left.cross_over(self, sl), 
                                       other.right.copy(),
                                       other.operator)
                 else:
                     return BinaryNode(other.left.copy(), 
-                                      other.right.cross_over(self),
+                                      other.right.cross_over(self, sl),
                                       other.operator)
             else:
                 return other.copy()
 
 class AttributeNode(TerminalNode):
-    def __init__(self, index = None):
+    def __init__(self, index = None, lock=False):
         if index is None:
-            index = random.choice(("health_1", "attack_1", "defense_1",
+            index = choice(("health_1", "attack_1", "defense_1",
                                    "health_2", "attack_2", "defense_2"))
         self.index = index
+        self.locked = lock
+        
+    def is_locked(self):
+        return self.locked
         
     def value(self, state):
         return getattr(state, self.index)
@@ -105,6 +120,9 @@ class ConstantNode(TerminalNode):
             value = float(random.randint(1, 100))
         self._value = value
         
+    def is_locked(self):
+        return False
+        
     def value(self, state):
         return self._value
         
@@ -115,7 +133,7 @@ class ConstantNode(TerminalNode):
         return str(self._value)
 
 def random_terminal():
-    if not RANDOM_VARIABLES or random.choice((True, False)):
+    if not RANDOM_VARIABLES or choice(BOOLEANS):
         return AttributeNode()
     else:
         return ConstantNode()
@@ -123,11 +141,14 @@ def random_terminal():
 class UnaryNode(Node):
     def __init__(self, child = None, operator= None):
         if operator is None:
-            operator = random.choice(UNARY_OPERATORS)
+            operator = choice(UNARY_OPERATORS)
         if child is None:
             child = random_terminal()
         self.operator = operator
         self.child = child
+        
+    def is_locked(self):
+        return self.child.is_locked()
         
     def value(self, state):
         return self.operator(self.child.value(state))
@@ -139,7 +160,7 @@ class UnaryNode(Node):
         return UnaryNode(self.child.copy(), self.operator)
     
     def mutate(self, height_left):
-        mutation = random.choice(("orphan", "change", "add_right", "add_right"))
+        mutation = choice(("orphan", "change", "add_right", "add_right"))
         if mutation == "orphan":
             return self.child.copy()
         elif mutation == "change":
@@ -164,29 +185,33 @@ class UnaryNode(Node):
     def __str__(self):
         return self.operator.string_template % (str(self.child),)
     
-    def cross_over(self, other):
-        dominant = random.choice((True, False))
-        chance = random.choice((True, False))
+    def cross_over(self, other, sl):
+        must_keep_self = sl and self.is_locked()
+        must_keep_other = not sl and other.is_locked()
+        dominant = choice(BOOLEANS)
+        chance = choice(BOOLEANS)
         if isinstance(other, UnaryNode):
-            return UnaryNode(self.child.cross_over(other.child),
+            return UnaryNode(self.child.cross_over(other.child, sl),
                              self.operator if dominant else other.operator)
         elif isinstance(other, BinaryNode):
             if dominant:
-                if chance:
-                    return UnaryNode(self.child.cross_over(other.left), self.operator)
+                if chance or (not sl and other.left.is_locked()):
+                    return UnaryNode(self.child.cross_over(other.left, sl), 
+                                     self.operator)
                 else:
-                    return UnaryNode(self.child.cross_over(other.right), self.operator)
+                    return UnaryNode(self.child.cross_over(other.right, sl), 
+                                     self.operator)
             else:
                 if chance:
-                    return BinaryNode(other.left.cross_over(self.child),
+                    return BinaryNode(other.left.cross_over(self.child, sl),
                                       other.right.copy(),
                                       other.operator)
                 else:
                     return BinaryNode(other.left.copy(),
-                                      other.right.cross_over(self.child),
+                                      other.right.cross_over(self.child, sl),
                                       other.operator)
         elif isinstance(other, TerminalNode):
-            if dominant:
+            if must_keep_self or (dominant and not must_keep_other):
                 return self.copy()
             else:
                 return other.copy()            
@@ -196,7 +221,7 @@ class UnaryNode(Node):
 class BinaryNode(Node):
     def __init__(self, left=None, right=None, operator=None):
         if operator is None:
-            operator = random.choice(BINARY_OPERATORS)
+            operator = choice(BINARY_OPERATORS)
         if left is None:
             left = random_terminal()
         if right is None:
@@ -204,6 +229,9 @@ class BinaryNode(Node):
         self.operator = operator
         self.left = left
         self.right = right
+    
+    def is_locked(self):
+        return self.left.is_locked() or self.right.is_locked()
         
     def inorder(self):
         for x in self.left.inorder():
@@ -233,7 +261,12 @@ class BinaryNode(Node):
             return BinaryNode(left, right, self.operator), 1+left_subtree_size+right_subtree_size
         
     def mutate(self, height_left):
-        mutation = random.choice(("orphan_left", "orphan_right", "change", "remove_right", "remove_left"))
+        if self.left.is_locked():
+            mutation = choice(("orphan_left", "change", "remove_right"))
+        elif self.right.is_locked():
+            mutation = choice(("orphan_right", "change", "remove_left"))
+        else:
+            mutation = choice(("orphan_left", "orphan_right", "change", "remove_right", "remove_left"))
         if mutation == "orphan_left":
             return self.left.copy()
         elif mutation == "orphan_right":
@@ -245,30 +278,34 @@ class BinaryNode(Node):
         elif mutation == "remove_left":
             return UnaryNode(self.right.copy())
     
-    def cross_over(self, other):
-        dominant = random.choice((True, False))
-        chance = random.choice((True, False))
+    def cross_over(self, other, sl):
+        must_keep_self = sl and self.is_locked()
+        must_keep_other = not sl and other.is_locked()
+        dominant = choice(BOOLEANS)
+        chance = choice(BOOLEANS)
         if isinstance(other, BinaryNode):
-            return BinaryNode(self.left.cross_over(other.left),
-                              self.right.cross_over(other.right),
+            return BinaryNode(self.left.cross_over(other.left, sl),
+                              self.right.cross_over(other.right, sl),
                               self.operator if dominant else other.operator)
         elif isinstance(other, UnaryNode):
             if dominant:
                 if chance:
-                    return BinaryNode(self.left.cross_over(other.child),
+                    return BinaryNode(self.left.cross_over(other.child, sl),
                                       self.right.copy(),
                                       self.operator)
                 else:
                     return BinaryNode(self.left.copy(),
-                                      self.right.cross_over(other.child),
+                                      self.right.cross_over(other.child, sl),
                                       self.operator)
             else:
-                if chance:
-                    return UnaryNode(other.child.cross_over(self.left), other.operator)
+                if chance or (not sl and other.left.is_locked()):
+                    return UnaryNode(other.child.cross_over(self.left, sl), 
+                                     other.operator)
                 else:
-                    return UnaryNode(other.child.cross_over(self.right), other.operator)
+                    return UnaryNode(other.child.cross_over(self.right, sl), 
+                                     other.operator)
         elif isinstance(other, TerminalNode):
-            if dominant:
+            if must_keep_self or (dominant and not must_keep_other):
                 return self.copy()
             else:
                 return other.copy()
@@ -276,7 +313,7 @@ class BinaryNode(Node):
 def random_tree(height=HEIGHT_MAX):
     if height == 0:
         return random_terminal()
-    node = random.choice(("terminal", "binary", "unary"))
+    node = choice(("terminal", "binary", "unary"))
     if node == "terminal":
         return random_terminal()
     elif node == "binary":
@@ -298,7 +335,7 @@ class FunctionTree(object):
         return FunctionTree(self.root.mutate_randomly(mutant, 0, HEIGHT_MAX)[0])
     
     def cross_over(self, other):
-        return FunctionTree(self.root.cross_over(other.root))
+        return FunctionTree(self.root.cross_over(other.root, choice(BOOLEANS)))
     
     def inorder(self):
         return self.root.inorder()

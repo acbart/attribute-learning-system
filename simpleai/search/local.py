@@ -189,7 +189,7 @@ def _create_genetic_expander(problem, mutation_chance):
                 child = problem.mutate(child)
             new_generation.append(child)
 
-        fringe.clear()
+        fringe.clear_worst_half() #Modification to retain top half of original population
         for s in new_generation:
             fringe.append(SearchNodeValueOrdered(state=s, problem=problem))
 
@@ -240,6 +240,42 @@ def _local_search(problem, fringe_expander, iterations_limit=0, fringe_size=1,
         best = fringe[0]
 
         iteration += 1
+        
+        print iteration
+
+        if iterations_limit and iteration >= iterations_limit:
+            run = False
+        elif not iterations_limit and old_best.value >= best.value:
+            run = False
+
+    return best
+
+    
+def _local_search_visualize(problem, fringe_expander, iterations_limit=0, 
+                            fringe_size=1, random_initial_states=False):
+    '''
+    Basic algorithm for all local search algorithms.
+    '''
+    fringe = BoundedPriorityQueue(fringe_size)
+    if random_initial_states:
+        for _ in xrange(fringe_size):
+            s = problem.generate_random_state()
+            fringe.append(SearchNodeValueOrdered(state=s, problem=problem))
+    else:
+        fringe.append(SearchNodeValueOrdered(state=problem.initial_state,
+                                             problem=problem))
+
+    iteration = 0
+    run = True
+    best = None
+    while run:
+        old_best = fringe[0]
+        fringe_expander(fringe, iteration)
+        best = fringe[0]
+
+        iteration += 1
+        
+        print iteration
 
         if iterations_limit and iteration >= iterations_limit:
             run = False
