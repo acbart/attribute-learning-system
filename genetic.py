@@ -205,11 +205,12 @@ class FunProblem(SearchProblem):
     def pprint(self, state):
         return "\n".join(["Move %d:\n\t%s" % (i, "\n\t".join([k+": "+str(v) for k, v in s.iteritems()])) for i, s in enumerate(state)])
         
-for x in xrange(1):
-    n = genetic(FunProblem(), population_size=5, iterations_limit=1, mutation_chance = .1)
-    for i, move in enumerate(n.state.moves):
-        print "Move", 1+i
-        for k, v in move.iteritems():
-            print "\t",k, "=", v
-            #print "\t\t", getattr(b, k), "=>", v.value(b)
-    #print "Attempt", x, "was", n.state
+if __name__ == "__main__":
+    for x in xrange(1):
+        n = genetic(FunProblem(), population_size=5, iterations_limit=1, mutation_chance = .1)
+        for i, move in enumerate(n.state.moves):
+            print "Move", 1+i
+            for k, v in move.iteritems():
+                print "\t",k, "=", v
+                #print "\t\t", getattr(b, k), "=>", v.value(b)
+        #print "Attempt", x, "was", n.state

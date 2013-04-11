@@ -255,5 +255,8 @@ class Vec2D(object):
         v = Vec2D(*args)
         return Vec2D(v.x*math.cos(v.y), v.x*math.sin(v.y))
         
+    def int(self):
+        return Vec2D(int(self[0]), int(self[1]))
+        
     def __hash__(self):
         return self.x + self.y

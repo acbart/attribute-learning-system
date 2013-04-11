@@ -109,7 +109,7 @@ class AttributeNode(TerminalNode):
         return getattr(state, self.index)
         
     def copy(self):
-        return AttributeNode(self.index)
+        return AttributeNode(self.index, self.locked)
         
     def __str__(self):
         return self.index

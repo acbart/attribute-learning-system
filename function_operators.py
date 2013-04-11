@@ -45,16 +45,27 @@ def increment(value): return value + 1.
 def decrement(value): return value - 1.
     
 log.string_template = "log(%s)"
+log.op = "log"
 sqrt.string_template = "sqrt(%s)"
+sqrt.op = "sqrt"
 sqr.string_template = "sqr(%s)"
+sqr.op = "sqr"
 ceil.string_template = "ceil(%s)"
+ceil.op = "v"
 floor.string_template = "floor(%s)"
+floor.op = "^"
 double.string_template = "(2 * %s)"
+double.op = "*2"
 halve.string_template = "(%s / 2)"
+halve.op = "/2"
 triple.string_template = "(3 * %s)"
+triple.op = "*3"
 third.string_template = "(%s / 3)"
+third.op = "/3"
 increment.string_template = "(%s + 1)"
+increment.op = "+1"
 decrement.string_template = "(%s - 1)"
+decrement.op = "-1"
         
 UNARY_OPERATORS = [sqrt, ceil, floor, log, double, halve, triple, third, increment, decrement]
    
@@ -86,10 +97,16 @@ def subtract(left, right):
     return left - right
     
 fmod.string_template = "mod(%s, %s)"
+fmod.op = "%"
 div.string_template = "(%s / %s)"
+div.op = "/"
 floordiv.string_template = "(%s // %s)"
+floordiv.op = "//"
 add.string_template = "(%s + %s)"
+add.op = "+"
 multipy.string_template = "(%s * %s)"
+multipy.op = "*"
 subtract.string_template = "(%s - %s)"
+subtract.op = "-"
 
 BINARY_OPERATORS = [add, multipy, subtract, fmod, div, floordiv]
