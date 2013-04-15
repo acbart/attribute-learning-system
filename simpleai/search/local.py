@@ -250,36 +250,27 @@ def _local_search(problem, fringe_expander, iterations_limit=0, fringe_size=1,
 
     return best
 
-    
-def _local_search_visualize(problem, fringe_expander, iterations_limit=0, 
-                            fringe_size=1, random_initial_states=False):
+
+def genetic_search_iteration(problem,  mutation_chance=0.1,
+                            population_size=1,
+                            initial_population= None):
     '''
     Basic algorithm for all local search algorithms.
     '''
+    fringe_expander = _create_genetic_expander(problem, mutation_chance)
+    fringe_size = population_size
     fringe = BoundedPriorityQueue(fringe_size)
-    if random_initial_states:
+    if initial_population is None:
         for _ in xrange(fringe_size):
             s = problem.generate_random_state()
             fringe.append(SearchNodeValueOrdered(state=s, problem=problem))
     else:
-        fringe.append(SearchNodeValueOrdered(state=problem.initial_state,
-                                             problem=problem))
+        for instance in initial_population:
+            fringe.append(SearchNodeValueOrdered(state=instance,
+                                                 problem=problem))
 
-    iteration = 0
-    run = True
-    best = None
-    while run:
-        old_best = fringe[0]
-        fringe_expander(fringe, iteration)
-        best = fringe[0]
-
-        iteration += 1
-        
-        print iteration
-
-        if iterations_limit and iteration >= iterations_limit:
-            run = False
-        elif not iterations_limit and old_best.value >= best.value:
-            run = False
+    old_best = fringe[0]
+    fringe_expander(fringe, 0)
+    best = fringe[0]
 
     return best

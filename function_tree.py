@@ -5,45 +5,54 @@ BOOLEANS = (True, False)
 
 from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, clamp
 
+"""
+A Node is either:
+    TerminalNode
+    BinaryNode
+    UnaryNode
 
-# given a vector of variables A, we want to define a random function
-#   F such that F: A -> A'. The function F can use any combination of 
-#   variables from A, favoring smaller combinations. It can use any of
-#   the following binary operations: addition, subtraction, division, 
-#   multiplication, and exponentiation. It can also use a random
-#   variable X (that'll change every run of the function)
+A TerminalNode is either:
+    AttributeNode (which holds an attribute, e.g. "opponent's health")
+    ConstantNode (Removed, but held a random value in 0..100)
+
+A BinaryNode has:
+    A left child (a Node)
+    A right child (a Node)
+    A binary operator (e.g. +, -, //)
     
-# a -> a'                   : a
-# g(a) -> a'                : ua
-# h(a,b) -> a'              : baa
-# h(g(a),b) -> a'           : buaa
-# h(a,g(b)) -> a'           : baua
-# h(g(a),g(b)) -> a'        : 
-# h(h(a,b),g(c)) -> a'
-# h(g(a),h(b,c)) -> a'
-# h(h(a,b),h(c,d)) -> a'
-# A terminal node 
+A UnaryNode has:
+    A child (a Node)
+    A unary operator (e.g. *2, log, sqr)
+    
+A FunctionTree has:
+    A root (a Node)
+    
+Key functions for the FunctionTree (and Nodes):
+    copy(self): return a new FunctionTree based on the old one. Nothing changes.
+    mutate(self): return a new FunctionTree, based on the old one, with only one
+                  change, e.g. a different terminal node, or changing a binary
+                  node into a unary node.
+    cross_over(self, other): merge two trees by walking through them
+                             simultaneously and randomly choosing either the
+                             first or the second's nodes. Creates a new tree.
+    
+The behavior of crossing over two nodes with different locked attribute types is
+undefined.
+    
+"""
 
-# binary operator
-# a
-# ua
-# baa
-
-# For each terminal node
-
-# +, -, /, *, **, // : a, b -> a'
-# +X, -X, /X, *X, **X, //X : a -> a'
-# a : -> a'
-
-HEIGHT_MAX = 2
-RANDOM_VARIABLES = False
+HEIGHT_MAX = 2              # The maximum height of a Function Tree
+RANDOM_VARIABLES = False    # Whether to use ConstantNodes
 
 class Node(object): pass
 
 class TerminalNode(Node):
     def mutate(self, height_left):
         if height_left <= 0:
-            return random_terminal()
+            if self.is_locked:
+                return self.copy()
+            else:
+                return random_terminal()
         if self.is_locked():
             mutation = choice(("single_parent", "binary_left", "binary_right"))
         else:
@@ -95,6 +104,8 @@ class TerminalNode(Node):
                 return other.copy()
 
 class AttributeNode(TerminalNode):
+    short_name = {"health_1" : "H", "attack_1": "A", "defense_1": "D",
+                  "health_2" : "h", "attack_2": "a", "defense_2": "d"}
     def __init__(self, index = None, lock=False):
         if index is None:
             index = choice(("health_1", "attack_1", "defense_1",
@@ -113,6 +124,15 @@ class AttributeNode(TerminalNode):
         
     def __str__(self):
         return self.index
+    def short_str(self):
+        return self.short_name[self.index]
+        
+    def label(self):
+        return self.index
+    def children(self):
+        return []
+    label = property(label)
+    children = property(children)
         
 class ConstantNode(TerminalNode):
     def __init__(self, value = None):
@@ -132,6 +152,13 @@ class ConstantNode(TerminalNode):
     def __str__(self):
         return str(self._value)
 
+    def label(self):
+        return self._value
+    def children(self):
+        return []
+    label = property(label)
+    children = property(children)
+        
 def random_terminal():
     if not RANDOM_VARIABLES or choice(BOOLEANS):
         return AttributeNode()
@@ -152,6 +179,13 @@ class UnaryNode(Node):
         
     def value(self, state):
         return self.operator(self.child.value(state))
+    
+    def label(self):
+        return self.operator.short_name
+    def children(self):
+        return [self.child]
+    label = property(label)
+    children = property(children)
         
     def __len__(self):
         return 1+len(self.child)
@@ -183,7 +217,10 @@ class UnaryNode(Node):
             yield x
             
     def __str__(self):
-        return self.operator.string_template % (str(self.child),)
+        return self.operator.formatted_name % (str(self.child),)
+        
+    def short_str(self):
+        return (self.operator.short_name + "(%s)") % (self.child.short_str(),)
     
     def cross_over(self, other, sl):
         must_keep_self = sl and self.is_locked()
@@ -239,6 +276,13 @@ class BinaryNode(Node):
         yield self
         for x in self.right.inorder():
             yield x
+            
+    def label(self):
+        return self.operator.short_name
+    def children(self):
+        return [self.left, self.right]
+    label = property(label)
+    children = property(children)
         
     def __len__(self):
         return 1+len(self.left)+len(self.right)
@@ -250,7 +294,10 @@ class BinaryNode(Node):
         return BinaryNode(self.left.copy(), self.right.copy(), self.operator)
     
     def __str__(self):
-        return self.operator.string_template % (str(self.left), str(self.right))
+        return self.operator.formatted_name % (str(self.left), str(self.right))
+        
+    def short_str(self):
+        return (self.operator.short_name + "(%s, %s)") % (self.left.short_str(), self.right.short_str())
         
     def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
@@ -298,7 +345,7 @@ class BinaryNode(Node):
                                       self.right.cross_over(other.child, sl),
                                       self.operator)
             else:
-                if chance or (not sl and other.left.is_locked()):
+                if chance or (not sl and self.left.is_locked()):
                     return UnaryNode(other.child.cross_over(self.left, sl), 
                                      other.operator)
                 else:
@@ -345,6 +392,9 @@ class FunctionTree(object):
     
     def __str__(self):
         return str(self.root)
+    
+    def short_str(self):
+        return self.root.short_str()
     
     def value(self, state):
         return clamp(self.root.value(state))

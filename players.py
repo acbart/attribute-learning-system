@@ -1,6 +1,16 @@
 import random
 from aima.minimax import alphabeta_search, Game
 
+"""
+Player is a class that makes decision in a battle_simulation. When they are
+defined, they should be given a movelist, which they can use to make decisions.
+For instance, a RandomPlayer will choose a move randomly, but a MiniMax player
+will actually attempt to find an ideal move to play. 
+
+A Player should also define "get_initial_stats", this way we can have players
+in the future with initial buffs like a higher defense or something.
+"""
+
 class Player(object):
     __name__ = "Abstract Player"
     def __init__(self, movelist):
@@ -39,6 +49,9 @@ class MinimaxState(object):
         self.attack_2 = other.attack_2
         self.defense_2 = other.defense_2
         self.turn = turn
+    
+    def __str__(self):
+        return "(H: %d, A: %d, D: %d), (h: %d, a: %d, d: %d), %s" % (self.health_1, self.attack_1, self.defense_1,self.health_2, self.attack_2, self.defense_2, str(self.turn))
         
     def flip(self):
         self.health_1, self.health_2 = self.health_2, self.health_1
@@ -55,6 +68,7 @@ class MinimaxGame(Game):
     
     def result(self, state, action):
         new_state = MinimaxState(state, not state.turn)
+        ## Test if this is faster than a comparable if-then tree
         if state.turn:
             new_state.flip()
         for feature, function in action.iteritems():
@@ -73,9 +87,9 @@ class MinimaxGame(Game):
         # return worth
         # Alternate battle calculation where only health matters
         if state.turn:
-            return state.health_1 - state.health_2
-        else:
             return state.health_2 - state.health_1
+        else:
+            return state.health_1 - state.health_2
             
     def to_move(self, state):
         return state.turn

@@ -68,32 +68,51 @@ def alphabeta_full_search(state, game):
                   lambda a: min_value(game.result(state, a),
                                       -infinity, infinity))
 
+debug = False
+if debug: minimax_log = open("minimax.log", "w")
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
-
+    global debug
     player = game.to_move(state)
+    
+    if debug: minimax_log.write("New testrun!\n")
 
     def max_value(state, alpha, beta, depth):
+        if debug: minimax_log.write("\t" * depth + str(depth) + " " + str(state) + "\n")
         if cutoff_test(state, depth):
+            if debug: minimax_log.write("\t" * (depth) + "Cutoff!\n")
             return eval_fn(state)
         v = -infinity
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+        if debug and len(game.actions(state)) == 0:
+            minimax_log.write("\t" * (depth) + "No more actions!\n")
+        for i, a in enumerate(game.actions(state)):
+            if debug: minimax_log.write("\t" * (1+depth) + "Exploring " + str(i) + "\n")
+            new_v = min_value(game.result(state, a), alpha, beta, depth+1)
+            if debug: minimax_log.write("\t" * (1+depth) + "... " + str(new_v) + " [" + str(v) + "] maximize\n")
+            v = max(v, new_v)
             if v >= beta:
+                if debug: minimax_log.write("\t" * (depth) + "Beta told me to stop!\n")
                 return v
             alpha = max(alpha, v)
         return v
 
-    def min_value(state, alpha, beta, depth):
+    def min_value(state, alpha, beta, depth, name=None):
+        if debug: minimax_log.write("\t" * depth + str(depth) + " " + str(state) + "\n")
+        if debug and name is not None: minimax_log.write("\t" * (depth) + str(name) + "\n")
         if cutoff_test(state, depth):
+            if debug: minimax_log.write("\t" * (depth) + "Cutoff!\n")
             return eval_fn(state)
         v = infinity
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+        if debug and len(game.actions(state)) == 0:
+            minimax_log.write("\t" * (depth) + "No more actions!\n")
+        for i, a in enumerate(game.actions(state)):
+            if debug: minimax_log.write("\t" * (1+depth) + "Exploring " + str(i) + "\n")
+            new_v = max_value(game.result(state, a), alpha, beta, depth+1)
+            if debug: minimax_log.write("\t" * (1+depth) + "... " + str(new_v) + " [" + str(v) + "] minimize\n")
+            v = min(v, new_v)
             if v <= alpha:
+                if debug: minimax_log.write("\t" * (depth) + "Alpha told me to stop!\n")
                 return v
             beta = min(beta, v)
         return v
@@ -103,9 +122,11 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     cutoff_test = (cutoff_test or
                    (lambda state,depth: depth>d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    return argmax(game.actions(state),
+    act = argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a),
-                                      -infinity, infinity, 0))
+                                      -infinity, infinity, 0, a))
+    if debug: minimax_log.write(str(game.actions(state).index(act)) + " won!\n")
+    return act
 
 #______________________________________________________________________________
 # Players for Games

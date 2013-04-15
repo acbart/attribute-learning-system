@@ -455,7 +455,7 @@ class Scene(object):
         Internal method to remove this sprite from the scene
         """
         if sprite in self._sprites:
-            self.unregister("director.render", sprite.draw)
+            #self.unregister("director.render", sprite.draw)
             self._sprites.remove(sprite)
 
     def _blit(self, surface, position, layer, flags, clipping):
