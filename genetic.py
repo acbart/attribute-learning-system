@@ -36,6 +36,10 @@ simply abstracts out some code from FunProblem.
 FunProblem is the interface between SimpleAI's genetic search and a MoveList.
 You can pass in specific Players to a FunProblem if you wish to see the game
 played with different players.
+
+I've now also added the "genetic" function, which is my own version of the
+genetic algorithm from SimpleAI. Their version had errors, and was too annoying
+to tweak. This gives us more control.
 """
 
 class BattleState(object):
@@ -257,23 +261,28 @@ genetic_log = open('genetic.log', 'w')
 genetic_log.write("There's gonna be an Evolution!\n")
 genetic_log.close()
 genetic_log = open('genetic.log', 'a')
-def genetic(problem, population_size = 100, 
-                     iterations_limit = 2,
+def genetic(problem, population_size = 10, 
+                     iterations_limit = 1,
                      retain_parents = .25,
                      mutation_rate = .4,
                      radiation_amount = 10):
+    """
+    In a new iteration,
+        retain_parents is what percentage of the original population to carry over, using the top performers.
+        mutation_rate is what percentage of mutated children and parents will be added
+        radiation_amount is how many times we'll mutate something.
+        new population = retained parents + new children + mutated parents and children
+    """
     population = [problem.generate_random_state() for x in xrange(population_size)]
        
-    from function_operators import multiply, subtract, fmod, div, double, decrement
+    from function_operators import multiply, subtract, fmod, div, double, increment
     from function_tree import FunctionTree, BinaryNode, UnaryNode, AttributeNode
     a, b, c = Move(), Move(), Move()
-    a["health_1"] = FunctionTree(BinaryNode(BinaryNode(AttributeNode("health_1", lock=True),
-                                                       AttributeNode("health_2"), subtract),
-                                            BinaryNode(AttributeNode("attack_1"),
-                                                       AttributeNode("attack_2"), fmod), multiply))
+    a["health_2"] = FunctionTree(BinaryNode(AttributeNode("health_2", lock=True),
+                                            AttributeNode("health_2"), subtract))
     b["attack_1"] = FunctionTree(UnaryNode(BinaryNode(AttributeNode("attack_1", lock=True),
                                                                    AttributeNode("defense_2"), div), double))
-    c["health_1"] = FunctionTree(UnaryNode(AttributeNode("health_1", lock=True), decrement))
+    c["defense_1"] = FunctionTree(UnaryNode(AttributeNode("defense_1", lock=True), increment))
     population[0].moves = [a, b, c]
     
     genetic_log.write("Initial\n")

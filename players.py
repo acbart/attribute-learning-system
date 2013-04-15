@@ -11,6 +11,9 @@ A Player should also define "get_initial_stats", this way we can have players
 in the future with initial buffs like a higher defense or something.
 """
 
+# TODO:
+#   add Greedy player, who always takes the currently optimal attack
+
 class Player(object):
     __name__ = "Abstract Player"
     def __init__(self, movelist):
@@ -20,6 +23,9 @@ class Player(object):
         return 100, 10, 10
     
 class RandomPlayer(Player):
+    """
+    A random player always chooses a random attack.
+    """
     __name__ = "Random Player"
     def __init__(self, movelist):
         Player.__init__(self, movelist)
@@ -29,6 +35,9 @@ class RandomPlayer(Player):
         return using_move.apply(battle_state), using_move
         
 class EagerPlayer(Player):
+    """
+    An eager player always chooses the first attack.
+    """
     __name__ = "Eager Player"
     def __init__(self, movelist):
         Player.__init__(self, movelist)
@@ -59,6 +68,7 @@ class MinimaxState(object):
         self.defense_1, self.defense_2 = self.defense_2, self.defense_1
         
 class MinimaxGame(Game):
+
     # True means it's player 1's turn
     def __init__(self, moves):
         self.moves = moves
@@ -87,9 +97,9 @@ class MinimaxGame(Game):
         # return worth
         # Alternate battle calculation where only health matters
         if state.turn:
-            return state.health_2 - state.health_1
+            return -(state.health_2 - state.health_1)
         else:
-            return state.health_1 - state.health_2
+            return -(state.health_1 - state.health_2)
             
     def to_move(self, state):
         return state.turn
@@ -98,11 +108,15 @@ class MinimaxGame(Game):
         return state.health_1 <= 0 or state.health_2 <= 0
 
 class MinimaxPlayer(Player):
+    """
+    A minimax player will use the Minimax algorithm to calculate the optimal
+    move at a limited depth.
+    """
     __name__ = "Minimax Player"
     def move(self, battle_state):
         battle = MinimaxGame(self.movelist.moves)
         initial = MinimaxState(battle_state, True)
-        move = alphabeta_search(initial, battle, d= 5)
+        move = alphabeta_search(initial, battle, d= 10)
         return move.apply(battle_state), move
         
 PLAYERS = [MinimaxPlayer]
