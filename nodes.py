@@ -1,6 +1,8 @@
 import random
 from config import RANDOM_VARIABLES, BOOLEANS, HEIGHT_MAX
-from function_operators import BINARY_OPERATORS, UNARY_OPERATORS
+from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERATORS
+
+import itertools
 
 """
 
@@ -193,8 +195,136 @@ def random_terminal():
     else:
         return ConstantNode()
         
-#class NaryNode(Node):
- #   def __init__(self, children = None, operator = None):
+class AryNode(Node):
+    operators_from_arity = {0 : NULLARY_OPERATORS,
+                            1 : UNARY_OPERATORS,
+                            2 : BINARY_OPERATORS}
+    def __init__(self, operator = None, arity=None, children = None, lock=False):
+        """
+        children (list) must be ownable by this new AryNode, so don't rely on it.
+        """
+        if operator is None:
+            if arity is None:
+                operator = random.choice(NULLARY_OPERATORS + 
+                                         UNARY_OPERATORS + 
+                                         BINARY_OPERATORS)
+            else:
+                operator = random.choice(AryNode.operators_from_arity[arity])
+        self.operator = operator
+        if children is None:
+            children = []
+            for child in xrange(operator.arity):
+                children.append(AryNode(arity=0))
+        self.children = children
+        self.lock = lock
+
+    @staticmethod
+    def random_tree(height_left=HEIGHT_MAX):
+        if height_left == 0:
+            return AryNode(arity=0)
+        arity = random.randint(0, 2)
+        children = [random_tree(height_left-1) for child in xrange(arity)]
+        return AryNode(arity=arity, children=children)
+    
+    def copy(self):
+        children_copies = [child.copy() for child in self.children]
+        return AryNode(operator = self.operator, 
+                       children = children_copies,
+                       lock = self.lock)
+    
+    def evaluate(self, state):
+        arguments = [child.evaluate(state) for child in self.children]
+        return self.operator(*arguments)
+        
+    def __len__(self):
+        return 1 + sum(len(child) for child in self.children)
+    
+    def __str__(self):
+        return self.operator.formatted_name % [str(child) for child in self.children]
+    
+    def short_string(self):
+        return self.operator.short_name % [child.short_string() for child in self.children]
+    
+    def is_protected(self):
+        return self.locked or any(child.is_protected() for child in self.children)
+        
+    def mutate(self, height_left):
+        # If we're out of room, just return a Nullary node
+        if height_left == 0:
+            return AryNode(arity = 0, lock = self.lock)
+            
+        # You can't mutate a locked node!
+        if self.locked:
+            return self.copy()
+        
+        while True:
+            arity = self.operator.arity
+            new_arity = random.randint(0, 2)
+            # You cannot remove a locked child node! Choose a different arity
+            if arity == 1 and new_arity == 0 and self.children[0].is_protected():
+                continue
+        
+            children_copies = [child.copy() for child in self.children]
+            # Add nodes until we reach proper arity
+            while len(children_copies) < new_arity:
+                children_copies.append(AryNode(arity=0))
+            # Remove nodes until we reach proper arity
+            while len(children_copies) > new_arity:
+                node_to_kill = random.choice(children_copies)
+                if node_to_kill.is_protected():
+                    continue
+                children_copies.remove(node_to_kill)
+            return AryNode(arity = new_arity, children = children_copies)
+            
+    def mutate_index(self, current_index, mutant_index, height_left):
+        # If we've found the mutant, mutate it!
+        if current_index == mutant_index:
+            return self.mutate(height_left), len(self)
+        else:
+            # Otherwise, continue recursively searching for it.
+            nodes_traversed = current_index + 1
+            new_children = []
+            for child in self.children:
+                new_child, new_nodes_traversed = child.mutate_index(nodes_traversed,
+                                                                    mutant_index,
+                                                                    height_left-1)
+                new_children.append(new_child)
+                nodes_traversed += new_nodes_traversed
+            return AryNode(operator = self.operator, children = new_children)
+            
+    def cross_over(self, other, keeping):
+        # If one of the nodes is locked and we're keeping it, then keep it!
+        if self.locked and keeping == "self":
+            return AryNode(operator = self.operator, locked = True)
+        elif other.locked and keeping == "other":
+            return AryNode(operator = other.operator, locked = True)
+        
+        # We cannot use an operator if it would ensure that we kill a locked node
+        if keeping == "self" and self.is_protected() and other.operator.arity == 0:
+            new_operator = self.operator
+        elif keeping == "other" and other.is_protected() and self.operator.arity == 0:
+            new_operator = other.operator
+        else:
+            new_operator = random.choice(self.operator, other.operator)
+        
+        # Create a new list of children by crossing over the two lists of children.
+        new_children = []
+        for self_child, other_child in itertools.zip_longest(self.children, other.children):
+            if self_child is None:
+                new_children.append(other_child.copy())
+            elif other_child is None:
+                new_children.append(self_child.copy())
+            else:
+                new_children.append(self_child.cross_over(other_child, keeping))
+                
+        # We might have too many children. Kill non-locked ones at random
+        while len(new_children) > new_operator.arity:
+            potential_victim = random.choice(new_children)
+            if potential_victim.is_protected():
+                continue
+            new_children.remove(potential_victim)
+            
+        return AryNode(operator = new_operator, children = new_children)
         
         
 class UnaryNode(Node):

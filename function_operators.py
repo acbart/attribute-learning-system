@@ -14,6 +14,29 @@ There is also the "clamp" function, which is used to force results to stay
 between 0 and 100.
 """
 
+def self_health(): return "self_health"
+self_health.short_name = "H"
+
+def self_attack(): return "self_attack"
+self_attack.short_name = "A"
+
+def self_defense(): return "self_defense"
+self_defense.short_name = "D"
+
+def other_health(): return "other_health"
+other_health.short_name = "h"
+
+def other_attack(): return "other_attack"
+other_attack.short_name = "a"
+
+def other_defense(): return "other_defense"
+other_defense.short_name = "d"
+        
+NULLARY_OPERATORS = [self_health, self_attack, self_defense, other_health, other_attack, other_defense]
+for operator in NULLARY_OPERATORS:
+    operator.formatted_name = operator.__name__
+    operator.arity = 0
+
 def clamp(value, minimum = 0, maximum = 100):
     # This function is called a bajillion times, possibly optimize it?
     if value < minimum:
@@ -87,6 +110,8 @@ decrement.formatted_name = "(%s - 1)"
 decrement.short_name = "-1"
         
 UNARY_OPERATORS = [double, halve, triple, third, increment, decrement] #ceil, floor, log, sqrt, 
+for operator in UNARY_OPERATORS:
+    operator.arity = 1
    
 def fmod(left, right):
     try:
@@ -129,3 +154,6 @@ subtract.formatted_name = "(%s - %s)"
 subtract.short_name = "-"
 
 BINARY_OPERATORS = [add, multiply, subtract, div] #floordiv, fmod
+for operator in BINARY_OPERATORS:
+    operator.arity = 2
+    
