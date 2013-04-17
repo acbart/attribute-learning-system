@@ -1,5 +1,6 @@
 import random
 from aima.minimax import alphabeta_search, Game
+from battle_state import BattleState
 
 """
 Player is a class that makes decision in a battle_simulation. When they are
@@ -30,9 +31,8 @@ class RandomPlayer(Player):
     def __init__(self, movelist):
         Player.__init__(self, movelist)
     
-    def move(self, battle_state):
-        using_move = random.choice(self.movelist.moves)
-        return using_move.apply(battle_state), using_move
+    def get_move(self, battle_state):
+        return random.choice(self.movelist.moves)
         
 class EagerPlayer(Player):
     """
@@ -42,30 +42,8 @@ class EagerPlayer(Player):
     def __init__(self, movelist):
         Player.__init__(self, movelist)
     
-    def move(self, battle_state):
-        using_move = self.movelist.moves[0]
-        return using_move.apply(battle_state), using_move
-        
-class MinimaxState(object):
-    __slots__ = ["health_1", "attack_1", "defense_1",
-                 "health_2", "attack_2", "defense_2",
-                 "turn"]
-    def __init__(self, other, turn):
-        self.health_1 = other.health_1
-        self.attack_1 = other.attack_1
-        self.defense_1 = other.defense_1
-        self.health_2 = other.health_2
-        self.attack_2 = other.attack_2
-        self.defense_2 = other.defense_2
-        self.turn = turn
-    
-    def __str__(self):
-        return "(H: %d, A: %d, D: %d), (h: %d, a: %d, d: %d), %s" % (self.health_1, self.attack_1, self.defense_1,self.health_2, self.attack_2, self.defense_2, str(self.turn))
-        
-    def flip(self):
-        self.health_1, self.health_2 = self.health_2, self.health_1
-        self.attack_1, self.attack_2 = self.attack_2, self.attack_1
-        self.defense_1, self.defense_2 = self.defense_2, self.defense_1
+    def get_move(self, battle_state):
+        return self.movelist.moves[0]
         
 class MinimaxGame(Game):
 
@@ -77,35 +55,18 @@ class MinimaxGame(Game):
         return self.moves
     
     def result(self, state, action):
-        new_state = MinimaxState(state, not state.turn)
-        ## Test if this is faster than a comparable if-then tree
-        if state.turn:
-            new_state.flip()
-        for feature, function in action.iteritems():
-            setattr(new_state, feature, function.value(state))
-        if state.turn:
-            new_state.flip()
+        new_state = BattleState(source =state)
+        action.apply(new_state)
         return new_state
     
     def utility(self, state, player):
-        # worth = 0
-        # p1, p2 = ("1", "2") if state.turn else ("2", "1")
-        # for positive_feature in ("health_"+p1, "attack_"+p1, "defense_"+p1):
-            # worth += getattr(state, positive_feature)
-        # for negative_feature in ("health_"+p2, "attack_"+p2, "defense_"+p2):
-            # worth -= getattr(state, negative_feature)
-        # return worth
-        # Alternate battle calculation where only health matters
-        if state.turn:
-            return -(state.health_2 - state.health_1)
-        else:
-            return -(state.health_1 - state.health_2)
+        return state.value()
             
     def to_move(self, state):
         return state.turn
     
     def terminal_test(self, state):
-        return state.health_1 <= 0 or state.health_2 <= 0
+        return not state.players_alive()
 
 class MinimaxPlayer(Player):
     """
@@ -113,10 +74,9 @@ class MinimaxPlayer(Player):
     move at a limited depth.
     """
     __name__ = "Minimax Player"
-    def move(self, battle_state):
-        battle = MinimaxGame(self.movelist.moves)
-        initial = MinimaxState(battle_state, True)
-        move = alphabeta_search(initial, battle, d= 10)
-        return move.apply(battle_state), move
+    def get_move(self, battle_state):
+        battle = MinimaxGame(self.movelist)
+        initial = BattleState(source = battle_state)
+        return alphabeta_search(initial, battle, d= 5)
         
 PLAYERS = [MinimaxPlayer]

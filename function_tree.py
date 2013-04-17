@@ -104,12 +104,11 @@ class TerminalNode(Node):
                 return other.copy()
 
 class AttributeNode(TerminalNode):
-    short_name = {"health_1" : "H", "attack_1": "A", "defense_1": "D",
-                  "health_2" : "h", "attack_2": "a", "defense_2": "d"}
+    short_name = {"self_health" : "H", "self_attack": "A", "self_defense": "D",
+                  "other_health" : "h", "other_attack": "a", "other_defense": "d"}
     def __init__(self, index = None, lock=False):
         if index is None:
-            index = choice(("health_1", "attack_1", "defense_1",
-                                   "health_2", "attack_2", "defense_2"))
+            index = choice(AttributeNode.short_name.keys())
         self.index = index
         self.locked = lock
         
@@ -117,14 +116,14 @@ class AttributeNode(TerminalNode):
         return self.locked
         
     def value(self, state):
-        return getattr(state, self.index)
+        return state.get_value(self.index)
         
     def copy(self):
         return AttributeNode(self.index, self.locked)
         
     def __str__(self):
         return self.index
-    def short_str(self):
+    def short_string(self):
         return self.short_name[self.index]
         
     def label(self):
@@ -219,8 +218,8 @@ class UnaryNode(Node):
     def __str__(self):
         return self.operator.formatted_name % (str(self.child),)
         
-    def short_str(self):
-        return (self.operator.short_name + "(%s)") % (self.child.short_str(),)
+    def short_string(self):
+        return (self.operator.short_name + "(%s)") % (self.child.short_string(),)
     
     def cross_over(self, other, sl):
         must_keep_self = sl and self.is_locked()
@@ -296,8 +295,8 @@ class BinaryNode(Node):
     def __str__(self):
         return self.operator.formatted_name % (str(self.left), str(self.right))
         
-    def short_str(self):
-        return (self.operator.short_name + "(%s, %s)") % (self.left.short_str(), self.right.short_str())
+    def short_string(self):
+        return (self.operator.short_name + "(%s, %s)") % (self.left.short_string(), self.right.short_string())
         
     def mutate_randomly(self, mutant, index, height_left):
         if index == mutant:
@@ -369,9 +368,11 @@ def random_tree(height=HEIGHT_MAX):
         return UnaryNode(random_tree(height-1))
 
 class FunctionTree(object):
-    def __init__(self, root=None):
+    def __init__(self, root=None, feature = None):
         if root is None:
             root = random_tree()
+        if feature is not None:
+            root = AttributeNode(feature, lock=True)
         self.root = root
     
     def copy(self):
@@ -393,8 +394,8 @@ class FunctionTree(object):
     def __str__(self):
         return str(self.root)
     
-    def short_str(self):
-        return self.root.short_str()
+    def short_string(self):
+        return self.root.short_string()
     
     def value(self, state):
         return clamp(self.root.value(state))
