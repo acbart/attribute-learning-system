@@ -16,7 +16,11 @@ between 0 and 100.
 
 def clamp(value, minimum = 0, maximum = 100):
     # This function is called a bajillion times, possibly optimize it?
-    return min(maximum, max(minimum, value))
+    if value < minimum:
+        return minimum
+    elif value > maximum:
+        return maximum
+    return value
 
 def bound_check(minimum = 0, maximum = 100):
     """
@@ -124,4 +128,4 @@ multiply.short_name = "*"
 subtract.formatted_name = "(%s - %s)"
 subtract.short_name = "-"
 
-BINARY_OPERATORS = [add, multiply, subtract, fmod, div] #floordiv
+BINARY_OPERATORS = [add, multiply, subtract, div] #floordiv, fmod

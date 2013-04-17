@@ -39,25 +39,26 @@ def battle_simulation(moves, player_1, player_2):
         absolute_value_record.append(battle_state.absolute_value())
         
     if DEBUG:
-        if battle_state.attacker_health <= 0 and battle_state.defender_health <= 0:
+        if battle_state.player_2_health <= 0 and battle_state.player_1_health <= 0:
             log_battle_data("\tTie")
-        elif battle_state.attacker_health <= 0:
-            log_battle_data("\tPlayer 2 (%s) won" % (p2_name,))
-        elif battle_state.defender_health <= 0:
-            log_battle_data("\tPlayer 1 (%s) won" % (p1_name,))
+        elif battle_state.player_2_health <= 0:
+            log_battle_data("\tPlayer 1 (%s) won" % (p2_name,))
+        elif battle_state.player_1_health <= 0:
+            log_battle_data("\tPlayer 2 (%s) won" % (p1_name,))
         else:
             log_battle_data("\tStalemate")
     
     # Calculate Metrics of success
     
     # Was the length good?
-    if abs(IDEAL_TURNS - turns) >= IDEAL_TURNS_TOLERANCE:
+    length_good = abs(IDEAL_TURNS - turns) <= IDEAL_TURNS_TOLERANCE
+    if not length_good:
         length_success = -50 
     else:
-        length_success = 50. * abs(turns - IDEAL_TURNS) / IDEAL_TURNS
+        length_success = 50. * abs(turns - IDEAL_TURNS) / float(IDEAL_TURNS)
     
     # Did someone win?
-    if battle_state.attacker_health <= 0 or battle_state.defender_health <= 0:
+    if length_good and (battle_state.player_2_health <= 0 or battle_state.player_1_health <= 0):
         victory_success = 50
     else:
         victory_success = -50
@@ -68,7 +69,7 @@ def battle_simulation(moves, player_1, player_2):
     normalize_move_usage = [abs(IDEAL_MOVE_USAGE - usage) for usage in move_usage]
     MAXIMUM_MOVE_USAGE = 2. * (len(moves) - 1) / len(moves)
     #print sum(normalize_move_usage) , MAXIMUM_MOVE_USAGE
-    move_usage_success = -100 * sum(normalize_move_usage) / MAXIMUM_MOVE_USAGE
+    move_usage_success = -50 * sum(normalize_move_usage) / MAXIMUM_MOVE_USAGE
     
     # Did the battle progress linearly?
     if abs(IDEAL_TURNS - turns) < IDEAL_TURNS_TOLERANCE:

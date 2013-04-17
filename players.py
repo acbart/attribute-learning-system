@@ -77,7 +77,7 @@ class MinimaxPlayer(Player):
     def get_move(self, battle_state):
         battle = MinimaxGame(self.movelist)
         initial = BattleState(source = battle_state)
-        move = alphabeta_search(initial, battle, d= 5)
+        move = alphabeta_search(initial, battle, d= 4)
         return move
         
 PLAYERS = [MinimaxPlayer]

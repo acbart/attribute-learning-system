@@ -4,13 +4,14 @@ from move_list import MoveList
 from players import PLAYERS
 from config import DEBUG
 from battle_simulation import battle_simulation
+import time
 
 def genetic(players = None,
             population_size = 100, 
-            iterations_limit = 1,
+            iterations_limit = 10,
             retain_parents = .25,
             mutation_rate = .4,
-            radiation_amount = 10):
+            radiation_amount = 50):
 
     # Logging for debug purposes
     if DEBUG:
@@ -26,6 +27,8 @@ def genetic(players = None,
         first_player, second_player = players
     
     # Create the evaluation function
+    simulation_results_cache = {}
+    prior = time.time()
     def evaluate_population(population):
         """
         Given a list of move lists (the population), 
@@ -34,9 +37,13 @@ def genetic(players = None,
         """
         population_values = []
         for move_list in population:
-            value, battle_id = battle_simulation(move_list, 
-                                                 first_player(move_list),
-                                                 second_player(move_list))
+            if id(move_list) in simulation_results_cache:
+                value, battle_id = simulation_results_cache[id(move_list)]
+            else:
+                value, battle_id = battle_simulation(move_list, 
+                                                     first_player(move_list),
+                                                     second_player(move_list))
+                simulation_results_cache[id(move_list)] = (value, battle_id)
             population_values.append( (move_list, value, battle_id) )
         population_values.sort(key = lambda item: -item[1]) # sort by value
         return population_values
@@ -85,7 +92,8 @@ def genetic(players = None,
             population.add(child)
         
         # Report to the user that we've finished an iteration!
-        print "Iteration", str(iteration+1)
+        print "Iteration", str(iteration+1), "Time:", round(time.time() - prior, 3)
+        prior = time.time()
     
     # Calculate the final resulting population
     results = evaluate_population(population)

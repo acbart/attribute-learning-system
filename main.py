@@ -1,5 +1,5 @@
 import random
-random.seed(42)
+random.seed(33)
 
 from genetic import genetic
 
