@@ -56,7 +56,7 @@ class MinimaxGame(Game):
     
     def result(self, state, action):
         new_state = BattleState(source =state)
-        action.apply(new_state)
+        new_state= action.apply(new_state)
         return new_state
     
     def utility(self, state, player):
@@ -77,6 +77,7 @@ class MinimaxPlayer(Player):
     def get_move(self, battle_state):
         battle = MinimaxGame(self.movelist)
         initial = BattleState(source = battle_state)
-        return alphabeta_search(initial, battle, d= 5)
+        move = alphabeta_search(initial, battle, d= 5)
+        return move
         
 PLAYERS = [MinimaxPlayer]

@@ -7,7 +7,7 @@ from battle_simulation import battle_simulation
 
 def genetic(players = None,
             population_size = 100, 
-            iterations_limit = 500,
+            iterations_limit = 1,
             retain_parents = .25,
             mutation_rate = .4,
             radiation_amount = 10):
@@ -87,8 +87,16 @@ def genetic(players = None,
         # Report to the user that we've finished an iteration!
         print "Iteration", str(iteration+1)
     
+    # Calculate the final resulting population
+    results = evaluate_population(population)
+    
     # Close up the log
+    if DEBUG:
+        log_genetic_data("Final Results")
+        for move_list, value, battle_id in population_values:
+            log_genetic_data("\tValue: %d, Battle: %d, Move List: %s" % 
+                             (value, battle_id, move_list.short_string()))
     if DEBUG: genetic_log.close()
     
-    # Return the move_list of the best
-    return evaluate_population(population)[0][0]
+    # Return the best state
+    return results[0][0]
