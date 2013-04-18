@@ -1,6 +1,6 @@
 import random
 from battle_state import BattleState
-from function_tree import FunctionTree, AttributeNode
+from function_tree import FunctionTree
 from config import NUMBER_OF_FEATURES_PER_MOVE, RADIATION_STRENGTH, MOVE_FEATURE_CHANGE_RATE
 
 def random_weighted_subset(weights, max_length):

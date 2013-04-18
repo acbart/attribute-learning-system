@@ -1,7 +1,7 @@
 import random
-from nodes import AttributeNode, random_tree
+from nodes import AttributeNode, random_tree, AryNode
 from config import HEIGHT_MAX, BOOLEANS
-from function_operators import clamp
+from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
 class FunctionTree(object):
     """    
@@ -11,11 +11,12 @@ class FunctionTree(object):
     
     def __init__(self, root=None, feature = None):
         # If not given a node, create a new random tree
-        if root is None:
-            root = random_tree()
+        if root is None and feature is None:
+            root = AryNode.random_tree()#random_tree()
         # If given a feature (string), create a simple f(x)=x fucntion
         if feature is not None:
-            root = AttributeNode(feature, lock=True)
+            root = AryNode(operator = get_feature_operator[feature],
+                           lock = True) #AttributeNode(feature, lock=True)
         self.root = root
     
     def copy(self):
@@ -23,6 +24,7 @@ class FunctionTree(object):
         copy(self): return a new FunctionTree based on the old one. Nothing changes.
         """
         new_root = self.root.copy()
+        assert new_root.get_protected().operator == self.root.get_protected().operator
         return FunctionTree(new_root)
     
     def mutate(self):
@@ -31,8 +33,9 @@ class FunctionTree(object):
                   change, e.g. a different terminal node, or changing a binary
                   node into a unary node.
         """
+        p = self.root.get_protected().operator
         mutant_node_index = random.randrange(len(self.root))
-        new_root, length_traversed = self.root.mutate_index(mutant_node_index, 0, HEIGHT_MAX)
+        new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
         return FunctionTree(new_root)
     
     def cross_over(self, other):
@@ -46,7 +49,7 @@ class FunctionTree(object):
         The behavior of crossing over two nodes with different locked attribute 
         types is undefined.
         """
-        new_root = self.root.cross_over(other.root, random.choice(BOOLEANS))
+        new_root = self.root.cross_over(other.root, keeping=random.choice(("self", "other")))
         return FunctionTree(new_root)
     
     def evaluate(self, state):

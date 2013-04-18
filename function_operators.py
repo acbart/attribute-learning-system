@@ -14,28 +14,30 @@ There is also the "clamp" function, which is used to force results to stay
 between 0 and 100.
 """
 
-def self_health(): return "self_health"
+def self_health(state): return state.get_value("self_health")
 self_health.short_name = "H"
 
-def self_attack(): return "self_attack"
+def self_attack(state): return state.get_value("self_attack")
 self_attack.short_name = "A"
 
-def self_defense(): return "self_defense"
+def self_defense(state): return state.get_value("self_defense")
 self_defense.short_name = "D"
 
-def other_health(): return "other_health"
+def other_health(state): return state.get_value("other_health")
 other_health.short_name = "h"
 
-def other_attack(): return "other_attack"
+def other_attack(state): return state.get_value("other_attack")
 other_attack.short_name = "a"
 
-def other_defense(): return "other_defense"
+def other_defense(state): return state.get_value("other_defense")
 other_defense.short_name = "d"
         
 NULLARY_OPERATORS = [self_health, self_attack, self_defense, other_health, other_attack, other_defense]
 for operator in NULLARY_OPERATORS:
     operator.formatted_name = operator.__name__
     operator.arity = 0
+
+get_feature_operator = dict([(operator.__name__, operator) for operator in NULLARY_OPERATORS])
 
 def clamp(value, minimum = 0, maximum = 100):
     # This function is called a bajillion times, possibly optimize it?
@@ -58,33 +60,33 @@ def bound_check(minimum = 0, maximum = 100):
         return new_f
     return wrap
     
-def log(value):
+def log(state, value):
     try:
         return math.log(value)
     except ValueError:
         return 0
 
-def sqrt(value):
+def sqrt(state, value):
     try:
         return math.sqrt(value)
     except ValueError:
         return 0
         
-def sqr(value):
+def sqr(state, value):
     return value ** 2
 
-def ceil(value):
+def ceil(state, value):
     return math.ceil(value)
    
-def floor(value):
+def floor(state, value):
     return math.floor(value)
     
-def double(value): return value * 2.
-def halve(value): return value / 2.    
-def triple(value): return value * 3.
-def third(value): return value / 3.
-def increment(value): return value + 1.
-def decrement(value): return value - 1.
+def double(state, value): return value * 2.
+def halve(state, value): return value / 2.    
+def triple(state, value): return value * 3.
+def third(state, value): return value / 3.
+def increment(state, value): return value + 1.
+def decrement(state, value): return value - 1.
     
 log.formatted_name = "log(%s)"
 log.short_name = "log"
@@ -113,31 +115,31 @@ UNARY_OPERATORS = [double, halve, triple, third, increment, decrement] #ceil, fl
 for operator in UNARY_OPERATORS:
     operator.arity = 1
    
-def fmod(left, right):
+def fmod(state, left, right):
     try:
         return math.fmod(left, right)
     except ValueError:
         return 0        
     
-def div(left, right):
+def div(state, left, right):
     try:
         return left / right
     except ZeroDivisionError:
         return 0
     
-def floordiv(left, right):
+def floordiv(state, left, right):
     try:
         return left // right
     except ZeroDivisionError:
         return 0
 
-def add(left, right):
+def add(state, left, right):
     return left + right
 
-def multiply(left, right):
+def multiply(state, left, right):
     return left * right
 
-def subtract(left, right):
+def subtract(state, left, right):
     return left - right
     
 fmod.formatted_name = "mod(%s, %s)"
