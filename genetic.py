@@ -7,7 +7,7 @@ from battle_simulation import battle_simulation
 import time
 
 def genetic(players = None,
-            population_size = 10, 
+            population_size = 100, 
             iterations_limit = 10,
             retain_parents = .1,
             mutation_rate = .4,
