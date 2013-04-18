@@ -24,7 +24,6 @@ class FunctionTree(object):
         copy(self): return a new FunctionTree based on the old one. Nothing changes.
         """
         new_root = self.root.copy()
-        assert new_root.get_protected().operator == self.root.get_protected().operator
         return FunctionTree(new_root)
     
     def mutate(self):

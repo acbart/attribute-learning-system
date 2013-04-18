@@ -96,9 +96,15 @@ class Node(object):
             while len(children_copies) < new_arity:
                 children_copies.append(Node(arity=0))
             # Remove nodes until we reach proper arity
+            k = 0
+            #print self, new_arity, [(c, c.is_protected()) for c in children_copies]
+            assert sum(int(c.is_protected()) for c in children_copies) <= 1
             while len(children_copies) > new_arity:
                 node_to_kill = random.choice(children_copies)
                 if node_to_kill.is_protected():
+                    k+= 1
+                    if k > 30:
+                        print [(c, c.is_protected()) for c in children_copies]
                     continue
                 children_copies.remove(node_to_kill)
             return Node(arity = new_arity, children = children_copies)
@@ -120,49 +126,7 @@ class Node(object):
             return Node(operator = self.operator, children = new_children, lock = self.lock), nodes_traversed
             
     def cross_over(self, other, keeping):
-        # If one of the nodes is lock and we're keeping it, then keep it!
-        if self.lock and keeping == "self":
-            child_node = Node(operator = self.operator, lock = True)
-            return child_node
-        elif other.lock and keeping == "other":
-            child_node = Node(operator = other.operator, lock = True)
-            return child_node
-        
-        # We cannot use an operator if it would ensure that we kill a lock node
-        if keeping == "self" and self.is_protected() and other.operator.arity == 0:
-            new_operator = self.operator
-        elif keeping == "other" and other.is_protected() and self.operator.arity == 0:
-            new_operator = other.operator
-        else:
-            new_operator = random.choice((self.operator, other.operator))
-        
-        # Create a new list of children by crossing over the two lists of children.
-        new_children = []
-        # lock_status is used to keep track of whether a node's lock status must be kept
-        lock_status = {}
-        for self_child, other_child in itertools.izip_longest(self.children, other.children):
-            if self_child is None:
-                new_child = other_child.copy()
-                lock_status[new_child] = keeping == "other" and other_child.is_protected()
-            elif other_child is None:
-                new_child = self_child.copy()
-                lock_status[new_child] = keeping == "self" and self_child.is_protected()
-            else:
-                new_child = self_child.cross_over(other_child, keeping)
-                if self_child.is_protected() and keeping == "self":
-                    lock_status[new_child] = True
-                elif other_child.is_protected() and keeping == "other":
-                    lock_status[new_child] = True
-                else:
-                    lock_status[new_child] = False
-            new_children.append(new_child)
-
-        # We might have too many children. Kill non-lock ones at random
-        while len(new_children) > new_operator.arity:
-            potential_victim = random.choice(new_children)
-            if potential_victim.is_protected() and lock_status[potential_victim]:
-                continue
-            new_children.remove(potential_victim)
+        # Todo
             
-        return Node(operator = new_operator, children = new_children)
+        return self.copy()
    
