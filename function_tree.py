@@ -1,5 +1,5 @@
 import random
-from nodes import AttributeNode, random_tree, AryNode
+from nodes import Node
 from config import HEIGHT_MAX, BOOLEANS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
@@ -12,10 +12,10 @@ class FunctionTree(object):
     def __init__(self, root=None, feature = None):
         # If not given a node, create a new random tree
         if root is None and feature is None:
-            root = AryNode.random_tree()#random_tree()
+            root = Node.random_tree()#random_tree()
         # If given a feature (string), create a simple f(x)=x fucntion
         if feature is not None:
-            root = AryNode(operator = get_feature_operator[feature],
+            root = Node(operator = get_feature_operator[feature],
                            lock = True) #AttributeNode(feature, lock=True)
         self.root = root
     
