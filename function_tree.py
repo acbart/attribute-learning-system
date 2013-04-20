@@ -16,7 +16,7 @@ class FunctionTree(object):
         # If given a feature (string), create a simple f(x)=x fucntion
         if feature is not None:
             root = Node(operator = get_feature_operator[feature],
-                           lock = True) #AttributeNode(feature, lock=True)
+                           lock = True)
         self.root = root
     
     def copy(self):

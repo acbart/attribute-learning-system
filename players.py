@@ -55,8 +55,7 @@ class MinimaxGame(Game):
         return self.moves
     
     def result(self, state, action):
-        new_state = BattleState(source =state)
-        new_state= action.apply(new_state)
+        new_state= action.apply(state)
         return new_state
     
     def utility(self, state, player):
@@ -79,5 +78,17 @@ class MinimaxPlayer(Player):
         initial = BattleState(source = battle_state)
         move = alphabeta_search(initial, battle, d= 4)
         return move
+
+class GreedyPlayer(Player):
+    """
+    A greedy player simply decides what the best move to take this turn is,
+    without looking ahead at all.
+    """
+    __name__ = "Greedy Player"
+    def get_move(self, battle_state):
+        battle = MinimaxGame(self.movelist)
+        initial = BattleState(source = battle_state)
+        move = alphabeta_search(initial, battle, d= 1)
+        return move
         
-PLAYERS = [MinimaxPlayer]
+PLAYERS = [GreedyPlayer]

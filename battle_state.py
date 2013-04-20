@@ -29,12 +29,12 @@ class BattleState(object):
         return getattr(self, BattleState.feature_to_attribute[feature][int(self.turn)])
         
     def get_winner(self):
-        if self.player_1_health <= 0 and self.player_2_health <= 0:
+        if int(self.player_1_health) <= 0 and int(self.player_2_health) <= 0:
             return "Tie"
-        elif self.player_1_health <= 0:
-            return "Player 1 won"
-        elif self.player_2_health <= 0:
+        elif int(self.player_1_health) <= 0:
             return "Player 2 won"
+        elif int(self.player_2_health) <= 0:
+            return "Player 1 won"
         else:
             return "Stalemate"
             
@@ -54,9 +54,9 @@ class BattleState(object):
     
     def value(self):
         if self.turn:
-            return self.player_1_health - self.player_2_health
-        else:
             return -(self.player_1_health - self.player_2_health)
+        else:
+            return (self.player_1_health - self.player_2_health)
         
     def __str__(self):
         return "(H: %d, A: %d, D: %d), (H: %d, A: %d, D: %d), %s" % (self.player_1_health, self.player_1_attack, self.player_1_defense,self.player_2_health, self.player_2_attack, self.player_2_defense, "Att" if self.turn else "Def")

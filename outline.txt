@@ -51,6 +51,8 @@ Results
         Different combinations of player strategies
         Different fitness functions
         Number of attributes
+        Changing what operators are available
+            Stochiastic operators
 Conclusions
 
 Future Work

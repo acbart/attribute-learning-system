@@ -1,6 +1,7 @@
 import random
 from battle_state import BattleState
 from function_tree import FunctionTree
+from function_operators import get_feature_operator
 from config import NUMBER_OF_FEATURES_PER_MOVE, RADIATION_STRENGTH, MOVE_FEATURE_CHANGE_RATE
 
 def random_weighted_subset(weights, max_length):
@@ -80,4 +81,4 @@ class Move(dict):
         return "{%s}" % (", ".join("%s <= %s" % (k, v) for k,v in self.iteritems()),)
     
     def short_string(self):
-        return "{%s}" % (", ".join("%s <= %s" % (self.short_name[k], v.short_string()) for k,v in self.iteritems()),)
+        return "{%s}" % (", ".join("%s <= %s" % (get_feature_operator[k].short_name, v.short_string()) for k,v in self.iteritems()),)
