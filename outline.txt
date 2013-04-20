@@ -50,7 +50,7 @@ Results
         FunctionTree height
         Different combinations of player strategies
         Different fitness functions
-        
+        Number of attributes
 Conclusions
 
 Future Work

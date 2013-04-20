@@ -27,6 +27,16 @@ class BattleState(object):
                             "other_defense" : ("player_2_defense", "player_1_defense")}
     def get_value(self, feature):
         return getattr(self, BattleState.feature_to_attribute[feature][int(self.turn)])
+        
+    def get_winner(self):
+        if self.player_1_health <= 0 and self.player_2_health <= 0:
+            return "Tie"
+        elif self.player_1_health <= 0:
+            return "Player 1 won"
+        elif self.player_2_health <= 0:
+            return "Player 2 won"
+        else:
+            return "Stalemate"
             
     def apply(self, move):
         for feature, function in move.iteritems():
@@ -35,6 +45,9 @@ class BattleState(object):
         
     def players_alive(self):
         return int(self.player_1_health) > 0 and int(self.player_2_health) > 0
+        
+    def is_one_winner(self):
+        return (self.player_2_health <= 0) != (self.player_1_health <= 0)
     
     def absolute_value(self):
         return self.player_1_health + self.player_2_health

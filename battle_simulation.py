@@ -39,14 +39,7 @@ def battle_simulation(moves, player_1, player_2):
         absolute_value_record.append(battle_state.absolute_value())
         
     if DEBUG:
-        if battle_state.player_2_health <= 0 and battle_state.player_1_health <= 0:
-            log_battle_data("\tTie")
-        elif battle_state.player_2_health <= 0:
-            log_battle_data("\tPlayer 1 (%s) won" % (p2_name,))
-        elif battle_state.player_1_health <= 0:
-            log_battle_data("\tPlayer 2 (%s) won" % (p1_name,))
-        else:
-            log_battle_data("\tStalemate")
+        log_battle_data("\t" + battle_state.get_winner())
     
     # Calculate Metrics of success
     
@@ -58,7 +51,7 @@ def battle_simulation(moves, player_1, player_2):
         length_success = 50. * abs(turns - IDEAL_TURNS) / float(IDEAL_TURNS)
     
     # Did someone win?
-    if length_good and (battle_state.player_2_health <= 0 or battle_state.player_1_health <= 0):
+    if length_good and battle_state.is_one_winner():
         victory_success = 50
     else:
         victory_success = -50
