@@ -1,5 +1,5 @@
 import random
-from nodes import Node
+from node import Node
 from config import HEIGHT_MAX, BOOLEANS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
@@ -35,6 +35,8 @@ class FunctionTree(object):
         p = self.root.get_protected().operator
         mutant_node_index = random.randrange(len(self.root))
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
+        #print self, new_root
+        assert new_root.count_protected() == 1
         return FunctionTree(new_root)
     
     def cross_over(self, other):
@@ -49,6 +51,7 @@ class FunctionTree(object):
         types is undefined.
         """
         new_root = self.root.cross_over(other.root, keeping=random.choice(("self", "other")))
+        assert new_root.count_protected() == 1
         return FunctionTree(new_root)
     
     def evaluate(self, state):

@@ -29,19 +29,41 @@ class Node(object):
 
     @staticmethod
     def random_tree(height_left=HEIGHT_MAX):
-        print "TEST"
         if height_left == 0:
             return Node(arity=0)
         arity = random.randint(0, 2)
-        children = [random_tree(height_left-1) for child in xrange(arity)]
+        children = [Node.random_tree(height_left-1) for child in xrange(arity)]
         new_tree = Node(arity=arity, children=children)
         return new_tree
+        
+    def lock_random(self):
+        def get_leaf(node, index, current_index = 0):
+            if node.children:
+                leaves_visited = 0
+                for child in node.children:
+                    result = get_leaf(child, index, current_index+leaves_visited)
+                    if isinstance(result, Node):
+                        return result
+                    leaves_visited += result
+                return leaves_visited
+            elif index == current_index:
+                return node
+            else:
+                return 1
+        leaf = random.randint(0, self.count_leaves()-1)
+        get_leaf(self, leaf).lock = True
     
-    def copy(self):
-        children_copies = [child.copy() for child in self.children]
+    def copy(self, lock=True):
+        """
+        Returns a complete copy of this node and its children.
+        
+        if lock is True, then also copy any lock status. Otherwise, turn off any
+        locking encountered.
+        """
+        children_copies = [child.copy(lock) for child in self.children]
         return Node(operator = self.operator, 
                        children = children_copies,
-                       lock = self.lock)
+                       lock = self.lock if lock else False)
     
     def evaluate(self, state):
         arguments = [child.evaluate(state) for child in self.children]
@@ -49,23 +71,39 @@ class Node(object):
         
     def __len__(self):
         return 1 + sum(len(child) for child in self.children)
+        
+    def count_leaves(self):
+        if self.children:
+            return sum(child.count_leaves() for child in self.children)
+        else:
+            return 1
     
     def __str__(self):
         return self.operator.formatted_name % tuple([str(child) for child in self.children])
     
     def short_string(self):
-        return self.operator.short_name % [child.short_string() for child in self.children]
+        this = ("$%s$" if self.lock else "%s") % (self.operator.short_name,)
+        children = ",".join([child.short_string() for child in self.children])
+        return this + "("+children+")"
     
     def is_protected(self):
         return self.lock or any(child.is_protected() for child in self.children)
         
     def get_protected(self):
-        if self.lock: return self
+        if self.lock: 
+            return self
         for child in self.children:
             possible_protected = child.get_protected()
-            if possible_protected is not None: return possible_protected
+            if possible_protected is not None:
+                return possible_protected
         return None
         
+    def count_protected(self):
+        if self.lock:
+            return 1
+        else:
+            return sum(child.count_protected() for child in self.children)
+            
     def mutate(self, height_left):
         # If we're out of room, just return a Nullary node
         if height_left == 0:
@@ -98,7 +136,6 @@ class Node(object):
             # Remove nodes until we reach proper arity
             k = 0
             #print self, new_arity, [(c, c.is_protected()) for c in children_copies]
-            assert sum(int(c.is_protected()) for c in children_copies) <= 1
             while len(children_copies) > new_arity:
                 node_to_kill = random.choice(children_copies)
                 if node_to_kill.is_protected():
@@ -126,7 +163,66 @@ class Node(object):
             return Node(operator = self.operator, children = new_children, lock = self.lock), nodes_traversed
             
     def cross_over(self, other, keeping):
-        # Todo
-            
-        return self.copy()
+        """
+        The following Description is from:
+        http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
+        
+        "According to [12], the GP uniform crossover process starts 
+        at the tree's root node and works its way down each tree along 
+        some path until finding function nodes of differing arity at the 
+        similar location. Furthermore it can swap every node up to this 
+        point with its counterpart in the other tree without altering the 
+        structure of either. Any node in one tree having a 
+        corresponding node at the same location in the other is said to 
+        be located within the common region. Those pairs of nodes 
+        within the common region that have the same arity are referred 
+        to as interior. The common region necessarily includes all 
+        interior nodes. Once the interior nodes have been identified, the 
+        parent trees are copied. Interior nodes are selected for crossover 
+        with some probability which is generally set to 0.5. Crossover 
+        involves exchanging the selected nodes between the trees, 
+        while those nodes not selected for crossover remain unaffected. 
+        Non-interior nodes within the common region can also be 
+        crossed, but in this case the nodes and their subtrees are 
+        swapped."
+        
+        [12] Poli R., Langdon W.B. On the search properties of different crossover 
+        operators in genetic programming. In J. R. Koza, et al., editors, Genetic 
+        Programming 1998:Proceedings of the Third Annual Conference, pages 
+        293-301, University of Wisconsin, Madison, Wisconsin, USA, 22-25 
+        July 1998.
+        """
+        
+        # (other_attack + other_defense) ((other_defense - other_defense) + (self_health - 1)) ((other_defense - other_defense) + other_defense)
+        # +(a,d) | d
+        # +(-(d,d),v(H)) | d
+        # +(-(d,d),d)
+        
+        # Are we in an interior node?
+        if self.operator.arity == other.operator.arity and self.operator.arity:
+            new_operator = random.choice((self.operator, other.operator))
+            new_children = []
+            for self_child, other_child in zip(self.children, other.children):
+                new_child = self_child.cross_over(other_child, keeping)
+                new_children.append(new_child)
+            return Node(operator=new_operator, children=new_children)
+        # Are we dealing with a protected boundary node?
+        elif self.is_protected() and keeping == "self":
+            return self.copy()
+        elif other.is_protected() and keeping == "other":
+            return other.copy()
+        # Then just choose a subtree and use it
+        else:
+            return (random.choice((self, other))).copy(False)
+        
    
+if __name__ == "__main__":
+    random.seed(5)
+    a = Node.random_tree()
+    print "A", a, a.get_protected()
+    a.lock_random()
+    b = Node.random_tree()
+    print "B", b
+    b.lock_random()
+    print "Cross-over: Notice how the first node of B is used with the rest of A's nodes!"
+    print "A+B", a.cross_over(b, "self")

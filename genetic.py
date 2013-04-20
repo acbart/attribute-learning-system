@@ -10,7 +10,7 @@ def genetic(players = None,
             population_size = 100, 
             iterations_limit = 10,
             retain_parents = .1,
-            mutation_rate = .4,
+            mutation_rate = .2,
             radiation_amount = 50):
 
     # Logging for debug purposes
@@ -36,16 +36,22 @@ def genetic(players = None,
         that is sorted by the values.
         """
         population_values = []
+        duplicates = 0
         for move_list in population:
-            if id(move_list) in simulation_results_cache:
-                value, battle_id = simulation_results_cache[id(move_list)]
+            if move_list.short_string() in simulation_results_cache:
+                value, battle_id = simulation_results_cache[move_list.short_string()]
+                duplicates += 1
             else:
                 value, battle_id = battle_simulation(move_list, 
                                                      first_player(move_list),
                                                      second_player(move_list))
-                simulation_results_cache[id(move_list)] = (value, battle_id)
+                simulation_results_cache[move_list.short_string()] = (value, battle_id)
             population_values.append( (move_list, value, battle_id) )
         population_values.sort(key = lambda item: -item[1]) # sort by value
+        
+        if DEBUG:
+            log_genetic_data("\tDuplicates: %d" % (duplicates,))
+            
         return population_values
         
     # Generate the new population
@@ -84,7 +90,7 @@ def genetic(players = None,
             for r in xrange(radiation_amount):
                 mutant = mutant.mutate()
             population.add(mutant)
-            
+        
         # Add in the children!
         while len(population) < population_size:
             dad, mom = random.sample(population, 2)

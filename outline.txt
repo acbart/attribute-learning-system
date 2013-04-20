@@ -1,0 +1,61 @@
+Problem
+
+Approach
+
+Implementation
+    Move Representation
+    
+    Genetic programming representation
+    
+    Description of genetic operators
+        Mutation algorithm
+        Cross-over algorithm
+        Mixed-children variant
+            http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
+        Weighted-delay cross-over variant
+            Potentially novel
+        Mixed-children weighted-delay cross-over
+        
+    Fitness Function
+        Battle simulation algorithm
+        Evaluation of simluations
+        
+    Player Strategies        
+        Depth-limited Minimax with Alpha-Beta Pruning
+        Greedy (e.g. depth = 1)
+        Random (e.g. depth = 0)
+        Depth-limited Maximin with Alpha-Beta Pruning (suicidal player)
+        
+        Utility = H - h
+        Utility = H + A + D - h - a - d
+
+Validation of genetic operators
+    Mutation
+    Cross-over
+    
+    Measuring tree-edit distance
+    Measuring function similarity
+        Over discretized intervals (e.g. 0..10..20.....100 for each vector)
+        Some kind of calculus approach?
+        
+Results
+    Tweakable parameters
+        Different population sizes
+        Number of iterations
+        Mutation Rate
+        Percentage of top-performers retained as parents
+        With/Without Cross-over
+        Number of moves in a movelist
+        Number of attributes a move can modify
+        FunctionTree height
+        Different combinations of player strategies
+        Different fitness functions
+        
+Conclusions
+
+Future Work
+    Different Cross-over operators
+        Median Tree Edit-Distance algorithm
+        Median Function Similarity algorithm
+        
+References
