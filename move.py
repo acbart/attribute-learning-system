@@ -76,9 +76,22 @@ class Move(dict):
         new_battle_state = BattleState(state)
         new_battle_state.apply(self)
         return new_battle_state
+    
+    def evaluate(self, state):
+        return self.values()[0].evaluate(state)
         
     def __str__(self):
         return "{%s}" % (", ".join("%s <= %s" % (k, v) for k,v in self.iteritems()),)
     
     def short_string(self):
         return "{%s}" % (", ".join("%s <= %s" % (get_feature_operator[k].short_name, v.short_string()) for k,v in self.iteritems()),)
+
+    def _label(self):
+        return ""
+    
+    label = property(_label)
+    
+    def _children(self):
+        return self.values()
+    
+    children = property(_children)

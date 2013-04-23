@@ -57,12 +57,9 @@ def battle_simulation(moves, player_1, player_2):
         victory_success = -50
         
     # Were attacks used evenly?
-    IDEAL_MOVE_USAGE = 1. / len(moves)
     move_usage = [usage / float(turns) for usage in move_usage.values()]
-    normalize_move_usage = [abs(IDEAL_MOVE_USAGE - usage) for usage in move_usage]
-    MAXIMUM_MOVE_USAGE = 2. * (len(moves) - 1) / len(moves)
     #print sum(normalize_move_usage) , MAXIMUM_MOVE_USAGE
-    move_usage_success = -50 * sum(normalize_move_usage) / MAXIMUM_MOVE_USAGE
+    move_usage_success = -50 * numpy.std(move_usage)
     
     # Did the battle progress linearly?
     if abs(IDEAL_TURNS - turns) < IDEAL_TURNS_TOLERANCE:

@@ -72,3 +72,12 @@ class FunctionTree(object):
     def short_string(self):
         return self.root.short_string()
         
+    def _label(self):
+        return ""
+    
+    label = property(_label)
+    
+    def _children(self):
+        return [self.root]
+    
+    children = property(_children)

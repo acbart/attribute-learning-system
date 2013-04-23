@@ -1,8 +1,6 @@
 import random
 from config import RANDOM_VARIABLES, BOOLEANS, HEIGHT_MAX
 from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERATORS
-
-import itertools
         
 class Node(object):
     """
@@ -130,6 +128,11 @@ class Node(object):
         this = ("$%s$" if self.lock else "%s") % (self.operator.short_name,)
         children = ",".join([child.short_string() for child in self.children])
         return this + "("+children+")"
+    
+    def _label(self):
+        return self.operator.short_name
+    
+    label = property(_label)
     
     def is_protected(self):
         """
@@ -279,14 +282,3 @@ class Node(object):
         else:
             return (random.choice((self, other))).copy(False)
         
-   
-if __name__ == "__main__":
-    random.seed(5)
-    a = Node.random_tree()
-    print "A", a, a.get_protected()
-    a.lock_random()
-    b = Node.random_tree()
-    print "B", b
-    b.lock_random()
-    print "Cross-over: Notice how the first node of B is used with the rest of A's nodes!"
-    print "A+B", a.cross_over(b, "self")

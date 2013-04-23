@@ -2,7 +2,7 @@
 RADIATION_STRENGTH = 100            # How many times to mutate something
 NUMBER_OF_MOVES_PER_MOVE_LIST = 3   # 
 NUMBER_OF_FEATURES_PER_MOVE = 1     # E.g. a move can affect more than one attribute
-DEBUG = True                       # Whether to log data
+DEBUG = False                       # Whether to log data
 
 MOVE_FEATURE_CHANGE_RATE = 4 # 1 in MOVE_FEATURE_CHANGE_RATE of changing
 

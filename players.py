@@ -91,4 +91,4 @@ class GreedyPlayer(Player):
         move = alphabeta_search(initial, battle, d= 1)
         return move
         
-PLAYERS = [GreedyPlayer]
+PLAYERS = [MinimaxPlayer]
