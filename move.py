@@ -14,12 +14,10 @@ def random_weighted_subset(weights, max_length):
         features.append(random.choice(possibilities))
     return features
 
-class Move(dict):
+class Move(list):
     feature_occurrences = {"self_health" : 1, "self_attack" : 3, 
                            "self_defense" : 3, "other_health" : 4, 
                            "other_attack" : 3, "other_defense" : 3}
-    short_name = {"self_health" : "H", "self_attack": "A", "self_defense": "D",
-                  "other_health" : "h", "other_attack": "a", "other_defense": "d"}
     
     @classmethod
     def generate_random_move(cls):
@@ -30,18 +28,14 @@ class Move(dict):
         
         # For each feature, create it's function
         for feature in features:
-            new_move[feature] = FunctionTree(feature=feature)
-            
-            #Mutate the function a little
-            for x in xrange(RADIATION_STRENGTH):
-                new_move[feature] = new_move[feature].mutate()
+            new_move.append(FunctionTree())
         
         return new_move
         
     def copy(self):
         new_move = Move()
-        for feature, function in self.iteritems():
-            new_move[feature] = function.copy()
+        for function in self:
+            new_move.append(function.copy())
         return new_move
     
     def mutate(self):
@@ -51,26 +45,15 @@ class Move(dict):
         # Otherwise, just mutate it's function trees a little
         else:
             new_move = Move()
-            for feature, function in self.iteritems():
-                new_move[feature] = function.mutate()
+            for function in self:
+                new_move.append(function.mutate())
             return new_move
         
     def cross_over(self, other):
-        common_features = set(self.keys()) & set(other.keys())
-        # If they have features in common, merge them
-        if common_features:
-            child_move = Move()
-            # Merge each feature individually
-            for feature in common_features:
-                self_function, other_function = self[feature], other[feature]
-                child_move[feature] = self_function.cross_over(other_function)
-            return child_move
-        # Otherwise, just pick one to copy, slightly mutated
-        else:
-            if random.choice((True, False)):
-                return self.mutate()
-            else:
-                return other.mutate()
+        new_move = Move()
+        for self_f, other_f in zip(self, other):
+            new_move.append(self_f.cross_over(other_f))
+        return new_move
         
     def apply(self, state):
         new_battle_state = BattleState(state)
@@ -81,10 +64,10 @@ class Move(dict):
         return self.values()[0].evaluate(state)
         
     def __str__(self):
-        return "{%s}" % (", ".join("%s <= %s" % (k, v) for k,v in self.iteritems()),)
+        return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft) for ft in self),)
     
     def short_string(self):
-        return "{%s}" % (", ".join("%s <= %s" % (get_feature_operator[k].short_name, v.short_string()) for k,v in self.iteritems()),)
+        return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft.short_string()) for ft in self),)
 
     def _label(self):
         return ""

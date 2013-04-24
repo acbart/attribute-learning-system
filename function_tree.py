@@ -9,15 +9,21 @@ class FunctionTree(object):
         A root (a Node)
     """
     
-    def __init__(self, root=None, feature = None):
+    feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
+    
+    def __init__(self, root=None):
         # If not given a node, create a new random tree
-        if root is None and feature is None:
+        if root is None:
             root = Node.random_tree()#random_tree()
-        # If given a feature (string), create a simple f(x)=x fucntion
-        if feature is not None:
-            root = Node(operator = get_feature_operator[feature],
-                           lock = True)
         self.root = root
+        self.feature = self.choose_random_attribute_leaf()
+        if self.feature is None:
+            self.feature = random.choice(self.feature_choices)
+        else:
+            self.feature = self.feature.operator.formatted_name
+        
+    def choose_random_attribute_leaf(self):
+        return self.root.choose_random_attribute_leaf()
     
     def copy(self):
         """
@@ -32,11 +38,8 @@ class FunctionTree(object):
                   change, e.g. a different terminal node, or changing a binary
                   node into a unary node.
         """
-        p = self.root.get_protected().operator
         mutant_node_index = random.randrange(len(self.root))
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
-        #print self, new_root
-        assert new_root.count_protected() == 1
         return FunctionTree(new_root)
     
     def cross_over(self, other):
@@ -50,8 +53,7 @@ class FunctionTree(object):
         The behavior of crossing over two nodes with different locked attribute 
         types is undefined.
         """
-        new_root = self.root.cross_over(other.root, keeping=random.choice(("self", "other")))
-        assert new_root.count_protected() == 1
+        new_root = self.root.cross_over(other.root)
         return FunctionTree(new_root)
     
     def evaluate(self, state):

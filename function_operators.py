@@ -36,8 +36,18 @@ NULLARY_OPERATORS = [self_health, self_attack, self_defense, other_health, other
 for operator in NULLARY_OPERATORS:
     operator.formatted_name = operator.__name__
     operator.arity = 0
-
+    operator.is_attribute = True
+    
 get_feature_operator = dict([(operator.__name__, operator) for operator in NULLARY_OPERATORS])
+
+CONSTANT_OPERATORS = []
+for constant in xrange(0, 100):
+    constant_operator = lambda state: constant
+    constant_operator.short_name = str(constant)
+    constant_operator.formatted_name = str(constant)
+    constant_operator.arity = 0
+    constant_operator.is_attribute = False
+    CONSTANT_OPERATORS.append(constant_operator)
 
 def clamp(value, minimum = 0, maximum = 100):
     # This function is called a bajillion times, possibly optimize it?
@@ -114,6 +124,7 @@ decrement.short_name = "-1"
 UNARY_OPERATORS = [double, halve, triple, third, increment, decrement] #ceil, floor, log, sqrt, 
 for operator in UNARY_OPERATORS:
     operator.arity = 1
+    operator.is_attribute = False
    
 def fmod(state, left, right):
     try:
@@ -158,4 +169,5 @@ subtract.short_name = "-"
 BINARY_OPERATORS = [add, multiply, subtract, div] #floordiv, fmod
 for operator in BINARY_OPERATORS:
     operator.arity = 2
+    operator.is_attribute = False
     

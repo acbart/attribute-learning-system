@@ -8,6 +8,6 @@ if __name__ == "__main__":
     
     for index, move in enumerate(best_result):
         print "Move", 1+index
-        for feature, function in move.iteritems():
-            print "\t",feature, "=", function
+        for function in move:
+            print "\t",function.feature, "=", function
             

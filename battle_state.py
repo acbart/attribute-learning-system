@@ -39,9 +39,10 @@ class BattleState(object):
             return "Stalemate"
             
     def apply(self, move):
-        for feature, function in move.iteritems():
+        for function_tree in move:
+            feature = function_tree.feature
             attribute_name = BattleState.feature_to_attribute[feature][int(self.turn)]
-            setattr(self, attribute_name, function.evaluate(self))
+            setattr(self, attribute_name, function_tree.evaluate(self))
         
     def players_alive(self):
         return int(self.player_1_health) > 0 and int(self.player_2_health) > 0

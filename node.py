@@ -1,6 +1,6 @@
 import random
 from config import RANDOM_VARIABLES, BOOLEANS, HEIGHT_MAX
-from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERATORS
+from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERATORS, CONSTANT_OPERATORS
         
 class Node(object):
     """
@@ -17,7 +17,7 @@ class Node(object):
                             1 : UNARY_OPERATORS,
                             2 : BINARY_OPERATORS}
                             
-    def __init__(self, operator = None, arity=None, children = None, lock=False):
+    def __init__(self, operator = None, arity=None, children = None):
         """
         If an operator is NOT specified, then a random operator will be chosen. If
             an arity IS specified, an operator of the that arity will be randomly
@@ -26,7 +26,6 @@ class Node(object):
         If no children are specified, then new random nullary nodes will be created
             as children.
         """
-        self.lock = lock
         if operator is None:
             if arity is None:
                 operator = random.choice(NULLARY_OPERATORS + 
@@ -55,39 +54,34 @@ class Node(object):
         new_tree = Node(arity=arity, children=children)
         return new_tree
         
-    def lock_random(self):
-        """
-        Lock a random nullary node of this tree.
-        
-        Only used in tests, not by the genetic algorithms.
-        """
-        def get_leaf(node, index, current_index = 0):
+    def choose_random_attribute_leaf(self):
+        def get_attribute_leaves(node):
+            """
+            Get a specific leaf, which is *index* away from this *node*.
+            """
             if node.children:
-                leaves_visited = 0
+                result = list()
                 for child in node.children:
-                    result = get_leaf(child, index, current_index+leaves_visited)
-                    if isinstance(result, Node):
-                        return result
-                    leaves_visited += result
-                return leaves_visited
-            elif index == current_index:
-                return node
+                    result += get_attribute_leaves(child)
+                return result
             else:
-                return 1
-        leaf = random.randint(0, self.count_leaves()-1)
-        get_leaf(self, leaf).lock = True
+                return [node] if node.operator.is_attribute else []
+        attribute_leaves = get_attribute_leaves(self)
+        if attribute_leaves:
+            return random.choice(attribute_leaves)
+        else:
+            return None
     
-    def copy(self, lock=True):
+    def copy(self):
         """
         Returns a complete copy of this node and its children.
         
         If lock is True, then also copy any lock status in the nullary nodes. 
             Otherwise, turn off any locking encountered.
         """
-        children_copies = [child.copy(lock) for child in self.children]
+        children_copies = [child.copy() for child in self.children]
         return Node(operator = self.operator, 
-                       children = children_copies,
-                       lock = self.lock if lock else False)
+                    children = children_copies)
     
     def evaluate(self, state):
         """
@@ -112,6 +106,16 @@ class Node(object):
             return sum(child.count_leaves() for child in self.children)
         else:
             return 1
+            
+    def count_attribute_leaves(self):
+        """
+        Count how many terminal nodes (leaves, or in this case, nodes that have
+        a nullary operator) are in this node.
+        """
+        if self.children:
+            return sum(child.count_attribute_leaves() for child in self.children)
+        else:
+            return 1 if self.operator.is_attribute else 0
     
     def __str__(self):
         """
@@ -125,7 +129,7 @@ class Node(object):
         Return a concise string representation of this node. Any locked nodes
         will be surronded with sigils ($).
         """
-        this = ("$%s$" if self.lock else "%s") % (self.operator.short_name,)
+        this = self.operator.short_name
         children = ",".join([child.short_string() for child in self.children])
         return this + "("+children+")"
     
@@ -133,35 +137,6 @@ class Node(object):
         return self.operator.short_name
     
     label = property(_label)
-    
-    def is_protected(self):
-        """
-        Return whether this node or any of its children is locked.
-        """
-        return self.lock or any(child.is_protected() for child in self.children)
-        
-    def get_protected(self):
-        """
-        If this node or any of its children are locked, return that locked node.
-        
-        Otherwise return None.
-        """
-        if self.lock: 
-            return self
-        for child in self.children:
-            possible_protected = child.get_protected()
-            if possible_protected is not None:
-                return possible_protected
-        return None
-        
-    def count_protected(self):
-        """
-        Count how many subnodes in this node are locked.
-        """
-        if self.lock:
-            return 1
-        else:
-            return sum(child.count_protected() for child in self.children)
             
     def mutate(self, height_left):
         """
@@ -170,38 +145,15 @@ class Node(object):
         
         # If we're out of room, just return a Nullary node
         if height_left == 0:
-            if self.lock:
-                # Keep the attribute if it's locked
-                return Node(operator = self.operator, lock = self.lock)
-            else:
-                return Node(arity = 0, lock = self.lock)
-        
-        # If it's a locked attribute, make sure you keep it.
-        if self.lock:
-            new_arity = random.randint(0, 2)
-            if new_arity == 0:
-                # Copy it wholesale
-                return self.copy()
-            else:
-                # Make it a child of a new parent
-                new_children = [self.copy()] + [Node(arity=0) for x in xrange(new_arity-1)]
-                random.shuffle(new_children)
-                new_node = Node(arity=new_arity, children= new_children)
-                return new_node
+            return Node(arity = 0)
         
         # 50% chance of promoting a child to replace this node. (50% is arbitrarly chosen)
         if self.operator.arity > 0 and random.choice((True, False)):
-            # If one of the children is locked, we must keep it!
-            promoted_child = self.get_protected()
-            if promoted_child is None:
-                promoted_child = random.choice(self.children)
+            promoted_child = random.choice(self.children)
             return promoted_child.copy()
         else:
             # Otherwise, just choose a completely new type of node to change this to.
-            if self.is_protected():
-                new_arity = random.randint(1, 2)            
-            else:
-                new_arity = random.randint(0, 2)
+            new_arity = random.randint(0, 2)
             children_copies = [child.copy() for child in self.children]
             # Add nodes until we reach proper arity
             while len(children_copies) < new_arity:
@@ -209,9 +161,6 @@ class Node(object):
             # Remove nodes until we reach proper arity, ensuring that we never kill a protected node.
             while len(children_copies) > new_arity:
                 node_to_kill = random.choice(children_copies)
-                if node_to_kill.is_protected():
-                    # Very dangerous, but I'm pretty sure we should never get stuck in an infinite loop...
-                    continue
                 children_copies.remove(node_to_kill)
             return Node(arity = new_arity, children = children_copies)
             
@@ -232,9 +181,9 @@ class Node(object):
                                                                     height_left-1)
                 new_children.append(new_child)
                 nodes_traversed += new_nodes_traversed
-            return Node(operator = self.operator, children = new_children, lock = self.lock), nodes_traversed
+            return Node(operator = self.operator, children = new_children), nodes_traversed
             
-    def cross_over(self, other, keeping):
+    def cross_over(self, other):
         """
         The following Description is from:
         http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
@@ -270,15 +219,10 @@ class Node(object):
             new_operator = random.choice((self.operator, other.operator))
             new_children = []
             for self_child, other_child in zip(self.children, other.children):
-                new_child = self_child.cross_over(other_child, keeping)
+                new_child = self_child.cross_over(other_child)
                 new_children.append(new_child)
             return Node(operator=new_operator, children=new_children)
-        # Are we dealing with a protected boundary node?
-        elif self.is_protected() and keeping == "self":
-            return self.copy()
-        elif other.is_protected() and keeping == "other":
-            return other.copy()
         # Then just choose a subtree and use it
         else:
-            return (random.choice((self, other))).copy(False)
+            return (random.choice((self, other))).copy()
         
