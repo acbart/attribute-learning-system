@@ -30,9 +30,12 @@ class Node(object):
             if arity is None:
                 operator = random.choice(NULLARY_OPERATORS + 
                                          UNARY_OPERATORS + 
-                                         BINARY_OPERATORS)
+                                         BINARY_OPERATORS + random.sample(CONSTANT_OPERATORS, 3))
             else:
-                operator = random.choice(Node.operators_from_arity[arity])
+                if not random.randint(0, 5) and not arity:
+                    operator = random.choice(CONSTANT_OPERATORS)
+                else:
+                    operator = random.choice(Node.operators_from_arity[arity])
         self.operator = operator
         if children is None:
             children = []
