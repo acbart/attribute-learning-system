@@ -13,22 +13,22 @@ class SFunctionTree(object):
         # If not given a node or features, throw error
         if root is None and (mod_features is None or changed_feature is None):
             raise Exception("FunctionTree needs a node, or features list and changed feature specified")
-        
+
         # If given features (list), create a simple f(x)=x function
         if mod_features is not None:
-            
+
             children_feature_nodes = []
             for feature in mod_features:
                 children_feature_nodes.append(SNode(operator=get_feature_operator[feature]))
-            
+
             if specific_binary_operator is not None:
                 root = SNode(operator=specific_binary_operator, children=children_feature_nodes)
             else:
                 root = SNode(arity=2, children=children_feature_nodes)
-                
+
         if changed_feature is not None:
             self.changed_feature = changed_feature
-            
+
         self.root = root
 
     def copy(self):
@@ -37,12 +37,6 @@ class SFunctionTree(object):
         """
         new_root = self.root.copy()
         return SFunctionTree(new_root)
-    
-    
-    
-    
-    
-    
 
     def mutate(self):
         """
@@ -52,10 +46,17 @@ class SFunctionTree(object):
         """
         mutant_node_index = random.randrange(len(self.root))
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
-        #print self, new_root
-        assert new_root.count_protected() == 1
+        print "After Mutate: " + self + " new root: " + new_root
         return FunctionTree(new_root)
-        
+
+
+
+
+
+
+
+
+
     def cross_over(self, other):
         """
         other (FunctionTree)
@@ -68,7 +69,6 @@ class SFunctionTree(object):
         types is undefined.
         """
         new_root = self.root.cross_over(other.root, keeping=random.choice(("self", "other")))
-        assert new_root.count_protected() == 1
         return FunctionTree(new_root)
 
     def evaluate(self, state):
