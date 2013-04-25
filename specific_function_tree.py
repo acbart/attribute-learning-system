@@ -3,19 +3,32 @@ from node import Node
 from config import HEIGHT_MAX, BOOLEANS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
-class FunctionTree(object):
+class SFunctionTree(object):
     """
     A FunctionTree has:
         A root (a Node)
     """
 
-    def __init__(self, root=None, feature = None):
-        # If not given a node, create a new random tree
-        if root is None and feature is None:
-            root = Node.random_tree()#random_tree()
-        # If given a feature (string), create a simple f(x)=x fucntion
-        if feature is not None:
-            root = Node(operator = get_feature_operator[feature], lock = True)
+    def __init__(self, root=None, mod_features=None, specific_binary_operator=None, changed_feature=None):
+        # If not given a node or features, throw error
+        if root is None and (mod_features is None or changed_feature is None):
+            raise Exception("FunctionTree needs a node, or features list and changed feature specified")
+        
+        # If given features (list), create a simple f(x)=x function
+        if mod_features is not None:
+            
+            children_feature_nodes = []
+            for feature in mod_features:
+                children_feature_nodes.append(SNode(operator=get_feature_operator[feature]))
+            
+            if specific_binary_operator is not None:
+                root = SNode(operator=specific_binary_operator, children=children_feature_nodes)
+            else:
+                root = SNode(arity=2, children=children_feature_nodes)
+                
+        if changed_feature is not None:
+            self.changed_feature = changed_feature
+            
         self.root = root
 
     def copy(self):
@@ -23,7 +36,13 @@ class FunctionTree(object):
         copy(self): return a new FunctionTree based on the old one. Nothing changes.
         """
         new_root = self.root.copy()
-        return FunctionTree(new_root)
+        return SFunctionTree(new_root)
+    
+    
+    
+    
+    
+    
 
     def mutate(self):
         """
@@ -31,7 +50,6 @@ class FunctionTree(object):
                   change, e.g. a different terminal node, or changing a binary
                   node into a unary node.
         """
-        p = self.root.get_protected().operator
         mutant_node_index = random.randrange(len(self.root))
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
         #print self, new_root

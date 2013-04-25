@@ -4,7 +4,7 @@ from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERAT
 
 import itertools
 
-class Node(object):
+class SNode(object):
     """
     A Node is basically an operator and its arguments. If a node has a nullary
     operator (i.e. has no arguments), then it's an attribute (e.g. other_health).
@@ -19,14 +19,15 @@ class Node(object):
                             1 : UNARY_OPERATORS,
                             2 : BINARY_OPERATORS}
 
-    def __init__(self, operator = None, arity=None, children = None, lock=False):
+    def __init__(self, operator = None, arity=None, children = None, lock=False, nullary_options=None):
         """
         If an operator is NOT specified, then a random operator will be chosen. If
             an arity IS specified, an operator of the that arity will be randomly
             chosen.
 
-        If no children are specified, then new random nullary nodes will be created
-            as children.
+        If no children are specified and no nullary_options given, then new random 
+        nullary nodes will be created
+        as children.
         """
         self.lock = lock
         if operator is None:
@@ -42,6 +43,33 @@ class Node(object):
             for child in xrange(operator.arity):
                 children.append(Node(arity=0))
         self.children = children
+        
+        if nullary_options is not None:
+            self.nullary_options = nullary_options
+        else:
+            self.nullary_options = NULLARY_OPERATORS
+    
+    def mutate_index(self, current_index, mutant_index, height_left):
+        """
+        Find a specific node and mutate it.
+        """
+        # If we've found the mutant, return a mutated version of it!
+        if current_index == mutant_index:
+            return self.mutate(height_left), len(self)
+        else:
+            # Otherwise, continue recursively searching for it.
+            nodes_traversed = 1
+            new_children = []
+            for child in self.children:
+                new_child, new_nodes_traversed = child.mutate_index(current_index+nodes_traversed,
+                                                                    mutant_index,
+                                                                    height_left-1)
+                new_children.append(new_child)
+                nodes_traversed += new_nodes_traversed
+            return Node(operator = self.operator, children = new_children, lock = self.lock, nullary_options=self.nullary_options), nodes_traversed
+        
+        
+        
 
     @staticmethod
     def random_tree(height_left=HEIGHT_MAX):
@@ -169,9 +197,7 @@ class Node(object):
         if height_left == 0:
             if self.lock:
                 # Keep the attribute if it's locked
-                return Node(operator = self.operator, lock = self.lock)
-            else:
-                return Node(arity = 0, lock = self.lock)
+                return Node(operator = self.operator, lock = self.lock, nullary_options=self.nullary_options)
 
         # If it's a locked attribute, make sure you keep it.
         if self.lock:
@@ -181,7 +207,7 @@ class Node(object):
                 return self.copy()
             else:
                 # Make it a child of a new parent
-                new_children = [self.copy()] + [Node(arity=0) for x in xrange(new_arity-1)]
+                new_children = [self.copy()] + [Node(arity=0, nullary_options=self.nullary_options) for x in xrange(new_arity-1)]
                 random.shuffle(new_children)
                 new_node = Node(arity=new_arity, children= new_children)
                 return new_node
@@ -212,24 +238,6 @@ class Node(object):
                 children_copies.remove(node_to_kill)
             return Node(arity = new_arity, children = children_copies)
 
-    def mutate_index(self, current_index, mutant_index, height_left):
-        """
-        Find a specific node and mutate it.
-        """
-        # If we've found the mutant, return a mutated version of it!
-        if current_index == mutant_index:
-            return self.mutate(height_left), len(self)
-        else:
-            # Otherwise, continue recursively searching for it.
-            nodes_traversed = 1
-            new_children = []
-            for child in self.children:
-                new_child, new_nodes_traversed = child.mutate_index(current_index+nodes_traversed,
-                                                                    mutant_index,
-                                                                    height_left-1)
-                new_children.append(new_child)
-                nodes_traversed += new_nodes_traversed
-            return Node(operator = self.operator, children = new_children, lock = self.lock), nodes_traversed
 
     def cross_over(self, other, keeping):
         """
