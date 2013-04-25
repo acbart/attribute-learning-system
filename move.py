@@ -1,6 +1,6 @@
 import random
 from battle_state import BattleState
-from function_tree import FunctionTree
+from specific_function_tree import SFunctionTree
 from function_operators import get_feature_operator
 from config import NUMBER_OF_FEATURES_PER_MOVE, RADIATION_STRENGTH, MOVE_FEATURE_CHANGE_RATE
 
@@ -20,6 +20,14 @@ class Move(dict):
                            "other_attack" : 3, "other_defense" : 3}
     short_name = {"self_health" : "H", "self_attack": "A", "self_defense": "D",
                   "other_health" : "h", "other_attack": "a", "other_defense": "d"}
+    feature_affectors = {
+    "self_health": ["self_health", "self_defense"],
+    "self_defense": ["self_defense", "self_health"],
+    "self_attack": ["self_attack", "self_health"],
+    "other_health": ["self_attack", "other_defense"],
+    "other_defense": ["other_defense", "self_attack"],
+    "other_attack": ["self_attack", "other_defense"]
+    }
     
     @classmethod
     def generate_random_move(cls):
@@ -30,7 +38,7 @@ class Move(dict):
         
         # For each feature, create it's function
         for feature in features:
-            new_move[feature] = FunctionTree(feature=feature)
+            new_move[feature] = SFunctionTree(changed_feature=feature, mod_features=Move.feature_affectors[feature])
             
             #Mutate the function a little
             for x in xrange(RADIATION_STRENGTH):

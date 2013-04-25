@@ -74,7 +74,7 @@ class SNode(object):
         If lock is True, then also copy any lock status in the nullary nodes.
             Otherwise, turn off any locking encountered.
         """
-        children_copies = [child.copy(lock) for child in self.children]
+        children_copies = [child.copy() for child in self.children]
         return SNode(operator = self.operator,
                        children = children_copies, nullary_options=self.nullary_options)
 
@@ -170,7 +170,7 @@ class SNode(object):
             new_operator = random.choice((self.operator, other.operator))
             return SNode(operator=new_operator, children=self.children)
         else:
-            return SNode(operator=random.choice(self.operator, other.operator), children=self.children, nullary_options=self.nullary_options)
+            return SNode(operator=random.choice((self.operator, other.operator)), children=self.children, nullary_options=self.nullary_options)
 
 
 if __name__ == "__main__":

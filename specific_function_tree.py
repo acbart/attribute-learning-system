@@ -1,5 +1,5 @@
 import random
-from node import Node
+from specific_node import SNode
 from config import HEIGHT_MAX, BOOLEANS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
@@ -46,16 +46,8 @@ class SFunctionTree(object):
         """
         mutant_node_index = random.randrange(len(self.root))
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
-        print "After Mutate: " + self + " new root: " + new_root
-        return FunctionTree(new_root)
-
-
-
-
-
-
-
-
+        #print "After Mutate: " + self.short_string() + " new root: " + new_root.short_string()
+        return SFunctionTree(new_root)
 
     def cross_over(self, other):
         """
@@ -69,7 +61,7 @@ class SFunctionTree(object):
         types is undefined.
         """
         new_root = self.root.cross_over(other.root, keeping=random.choice(("self", "other")))
-        return FunctionTree(new_root)
+        return SFunctionTree(new_root)
 
     def evaluate(self, state):
         """
