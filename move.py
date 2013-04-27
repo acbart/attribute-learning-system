@@ -61,7 +61,8 @@ class Move(list):
         return new_battle_state
     
     def evaluate(self, state):
-        return self.values()[0].evaluate(state)
+        # Realistically, this shouldn't happen the way it does; it should return a vector of numbers.
+        return sum(function_tree.evaluate(state) for function_tree in self)
         
     def __str__(self):
         return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft) for ft in self),)
@@ -75,6 +76,6 @@ class Move(list):
     label = property(_label)
     
     def _children(self):
-        return self.values()
+        return self
     
     children = property(_children)

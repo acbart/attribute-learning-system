@@ -57,19 +57,20 @@ class Node(object):
         new_tree = Node(arity=arity, children=children)
         return new_tree
         
+    def get_attribute_leaves(self):
+        """
+        Get a specific leaf, which is *index* away from this *node*.
+        """
+        if self.children:
+            result = list()
+            for child in self.children:
+                result += child.get_attribute_leaves()
+            return result
+        else:
+            return [self] if self.operator.is_attribute else []
+        
     def choose_random_attribute_leaf(self):
-        def get_attribute_leaves(node):
-            """
-            Get a specific leaf, which is *index* away from this *node*.
-            """
-            if node.children:
-                result = list()
-                for child in node.children:
-                    result += get_attribute_leaves(child)
-                return result
-            else:
-                return [node] if node.operator.is_attribute else []
-        attribute_leaves = get_attribute_leaves(self)
+        attribute_leaves = self.get_attribute_leaves()
         if attribute_leaves:
             return random.choice(attribute_leaves)
         else:
@@ -185,6 +186,18 @@ class Node(object):
                 new_children.append(new_child)
                 nodes_traversed += new_nodes_traversed
             return Node(operator = self.operator, children = new_children), nodes_traversed
+    
+    def find_leave_indexes(self, current_index = 0):
+        if self.children:
+            nodes_traversed = 1
+            leaves = []
+            for child in self.children:
+                new_leaves, new_nodes_traversed = child.find_leave_indexes(current_index+nodes_traversed)
+                leaves+= new_leaves
+                nodes_traversed += new_nodes_traversed
+            return leaves, nodes_traversed
+        else:
+            return [current_index], 1
             
     def cross_over(self, other):
         """

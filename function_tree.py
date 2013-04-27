@@ -38,7 +38,9 @@ class FunctionTree(object):
                   change, e.g. a different terminal node, or changing a binary
                   node into a unary node.
         """
-        mutant_node_index = random.randrange(len(self.root))
+        #mutant_node_index = random.randrange(len(self.root))
+        leaf_node_indexes, length_traversed = self.root.find_leave_indexes()
+        mutant_node_index = random.choice(leaf_node_indexes)
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
         return FunctionTree(new_root)
     
