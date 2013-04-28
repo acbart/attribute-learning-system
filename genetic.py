@@ -8,7 +8,7 @@ import time
 
 def genetic(players = None,
             population_size = 100, 
-            iterations_limit = 20,
+            iterations_limit = 10,
             retain_parents = .1,
             mutation_rate = .7,
             radiation_amount = 50):

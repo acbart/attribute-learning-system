@@ -1,6 +1,7 @@
 import random
 from battle_state import BattleState
 from function_tree import FunctionTree
+from function_vector import FunctionVector
 from function_operators import get_feature_operator
 from config import NUMBER_OF_FEATURES_PER_MOVE, RADIATION_STRENGTH, MOVE_FEATURE_CHANGE_RATE
 
@@ -28,7 +29,7 @@ class Move(list):
         
         # For each feature, create it's function
         for feature in features:
-            new_move.append(FunctionTree())
+            new_move.append(FunctionVector())
         
         return new_move
         
@@ -39,15 +40,10 @@ class Move(list):
         return new_move
     
     def mutate(self):
-        # With some probability, completely change this Move
-        if random.randint(1, MOVE_FEATURE_CHANGE_RATE) == 1:
-            return Move.generate_random_move()
-        # Otherwise, just mutate it's function trees a little
-        else:
-            new_move = Move()
-            for function in self:
-                new_move.append(function.mutate())
-            return new_move
+        new_move = Move()
+        for function in self:
+            new_move.append(function.mutate())
+        return new_move
         
     def cross_over(self, other):
         new_move = Move()
@@ -65,7 +61,7 @@ class Move(list):
         return sum(function_tree.evaluate(state) for function_tree in self)
         
     def __str__(self):
-        return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft) for ft in self),)
+        return "{%s}" % (", ".join("%s <= %s" % (ft.feature, str(ft)) for ft in self),)
     
     def short_string(self):
         return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft.short_string()) for ft in self),)

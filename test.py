@@ -9,20 +9,18 @@
 import timeit
 
 setup1 = """
-import random
-def clamp(value):
-    return max(0, min(100, value))
+class A(dict):
+    def __init__(self):
+        dict.__init__(self)
+        self["a"] = 100
+        self["b"] = 50
+        
+c = A()
 """
 
 setup2 = """
-import random
-def clamp(value):
-    if value < 0:
-        return 0
-    elif value > 100:
-        return 100
-    return value
+c = {"a" : 100, "b" : 50}
 """
 
-print timeit.timeit('clamp(random.randint(-100, 200))', setup=setup1, number = 10000000)
-print timeit.timeit('clamp(random.randint(-100, 200))', setup=setup2, number = 10000000)
+print timeit.timeit('c["a"]', setup=setup1, number = 10000000)
+print timeit.timeit('c["a"]', setup=setup2, number = 10000000)
