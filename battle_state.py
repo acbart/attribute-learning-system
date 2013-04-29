@@ -1,10 +1,11 @@
 class BattleState(object):
     __slots__ = ["player_1_health", "player_1_attack", "player_1_defense",
                  "player_2_health", "player_2_attack", "player_2_defense",
-                 "turn"]
+                 "turn", "_turn"]
     move_features = ["self_health", "self_attack", "self_defense",
                     "other_health", "other_attack", "other_defense"]
     def __init__(self, source= None, players=None):
+
         if players is not None:
             self.player_1_health, self.player_1_attack, self.player_1_defense = players[0].get_initial_stats()
             self.player_2_health, self.player_2_attack, self.player_2_defense = players[1].get_initial_stats()
@@ -17,6 +18,14 @@ class BattleState(object):
             self.player_2_attack = source.player_2_attack
             self.player_2_defense = source.player_2_defense
             self.turn = not source.turn
+    
+    def _get_turn(self):
+        return self._turn
+    
+    def _set_turn(self, v):
+        self._turn = v
+        
+    turn = property(_get_turn, _set_turn)
     
     # Maps the features to the attacker and defender attributes, depending on turn
     feature_to_attribute = {"self_health" : ("player_1_health", "player_2_health"),

@@ -1,5 +1,5 @@
 import random
-from aima.minimax import alphabeta_search, Game
+from aima.minimax import minimax_decision, Game
 from battle_state import BattleState
 
 """
@@ -80,8 +80,7 @@ class MinimaxPlayer(Player):
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
         battle = MinimaxGame(self.movelist, self.other_player_moves)
-        initial = BattleState(source = battle_state)
-        move = alphabeta_search(initial, battle, d= 4)
+        move = minimax_decision(battle_state, battle, d= 4)
         return move
 
 class GreedyPlayer(Player):
@@ -92,8 +91,7 @@ class GreedyPlayer(Player):
     __name__ = "Greedy Player"
     def get_move(self, battle_state):
         battle = MinimaxGame(self.movelist, self.other_player_moves)
-        initial = BattleState(source = battle_state)
-        move = alphabeta_search(initial, battle, d= 1)
+        move = minimax_decision(battle_state, battle, d= 1)
         return move
         
 PLAYERS = [MinimaxPlayer]

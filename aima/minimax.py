@@ -7,57 +7,65 @@ import random
 #______________________________________________________________________________
 # Minimax Search
 
-def minimax_decision(state, game):
+def minimax_decision(state, game, d=4):
     """Given a state in a game, calculate the best move by searching
     forward all the way to the terminal states. [Fig. 5.3]"""
 
     player = game.to_move(state)
 
-    def max_value(state):
-        if game.terminal_test(state):
+    def max_value(state, depth):
+        #print "\t" * depth, state.turn
+        #print "MAX", state.turn
+        if game.terminal_test(state) or depth > d:
+            #print "Max Term", depth
             return game.utility(state, player)
         v = -infinity
         for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a)))
+            #print depth, state.turn, "BECOMES", game.result(state, a).turn
+            v = max(v, min_value(game.result(state, a), depth+1))
         return v
 
-    def min_value(state):
-        if game.terminal_test(state):
+    def min_value(state, depth):
+        #print "\t" * depth, state.turn
+        #print "MIN", state.turn
+        if game.terminal_test(state) or depth > d:
+            #print "Min Term", depth
             return game.utility(state, player)
         v = infinity
         for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a)))
+            #print depth, state.turn, "BECOMES", game.result(state, a).turn
+            v = min(v, max_value(game.result(state, a), depth+1))
         return v
 
     # Body of minimax_decision:
     return argmax(game.actions(state),
-                  lambda a: min_value(game.result(state, a)))
+                  lambda a: min_value(game.result(state, a), 1))
 
 #______________________________________________________________________________
 
-def alphabeta_full_search(state, game):
+def alphabeta_full_search(state, game, d=4):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Fig. 5.7], this version searches all the way to the leaves."""
 
     player = game.to_move(state)
 
-    def max_value(state, alpha, beta):
-        if game.terminal_test(state):
+    def max_value(state, alpha, beta, depth):
+        if game.terminal_test(state) or depth > d:
             return game.utility(state, player)
         v = -infinity
         for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a), alpha, beta))
+            v = max(v, min_value(game.result(state, a), alpha, beta, depth+1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
         return v
 
-    def min_value(state, alpha, beta):
-        if game.terminal_test(state):
+    def min_value(state, alpha, beta, depth):
+        if game.terminal_test(state) or depth > d:
             return game.utility(state, player)
         v = infinity
         for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a), alpha, beta))
+            v = min(v, max_value(game.result(state, a), alpha, beta, depth+1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -66,7 +74,7 @@ def alphabeta_full_search(state, game):
     # Body of alphabeta_search:
     return argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a),
-                                      -infinity, infinity))
+                                      -infinity, infinity, 1))
 
 debug = False
 if debug: minimax_log = open("minimax.log", "w")
@@ -86,6 +94,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = -infinity
         if debug and len(game.actions(state)) == 0:
             minimax_log.write("\t" * (depth) + "No more actions!\n")
+        print "ON", depth, state.turn, game.actions(state)
         for i, a in enumerate(game.actions(state)):
             if debug: minimax_log.write("\t" * (1+depth) + "Exploring " + str(i) + "\n")
             new_v = min_value(game.result(state, a), alpha, beta, depth+1)
@@ -106,6 +115,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = infinity
         if debug and len(game.actions(state)) == 0:
             minimax_log.write("\t" * (depth) + "No more actions!\n")
+        print "OFF", depth, state.turn, game.actions(state)
         for i, a in enumerate(game.actions(state)):
             if debug: minimax_log.write("\t" * (1+depth) + "Exploring " + str(i) + "\n")
             new_v = max_value(game.result(state, a), alpha, beta, depth+1)
