@@ -7,7 +7,7 @@ from battle_simulation import battle_simulation
 import time
 
 def genetic(players = None,
-            population_size = 120,
+            population_size = 600,
             iterations_limit = 40,
             retain_parents = .2,
             mutation_rate = .3,
@@ -21,7 +21,7 @@ def genetic(players = None,
 
     # If needed, generate random players
     if players is None:
-        first_player = MinimaxPlayer #random.choice(PLAYERS)
+        first_player = GreedyPlayer #random.choice(PLAYERS)
         second_player = GreedyPlayer #random.choice(PLAYERS)
     else:
         first_player, second_player = players

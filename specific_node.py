@@ -84,6 +84,7 @@ class SNode(object):
         operation of this snode on its children.
         """
         arguments = [child.evaluate(state) for child in self.children]
+        #print 'arguments: ' + arguments
         return self.operator(state, *arguments)
 
     def __len__(self):
@@ -128,6 +129,8 @@ class SNode(object):
             return self.copy()
 
         # Make it a child of a new parent
+        if random.choice(BOOLEANS):
+            return self.copy()
         new_parent = SNode(arity=1, nullary_options=self.nullary_options, children=[self.copy(),])
         return new_parent
 

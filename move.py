@@ -3,6 +3,7 @@ from battle_state import BattleState
 from specific_function_tree import SFunctionTree
 from function_operators import get_feature_operator
 from config import NUMBER_OF_FEATURES_PER_MOVE, RADIATION_STRENGTH, MOVE_FEATURE_CHANGE_RATE
+from players import PLAYERS, GreedyPlayer, RandomPlayer, MinimaxPlayer
 
 def random_weighted_subset(weights, max_length):
     features = []
@@ -21,12 +22,12 @@ class Move(dict):
     short_name = {"self_health" : "H", "self_attack": "A", "self_defense": "D",
                   "other_health" : "h", "other_attack": "a", "other_defense": "d"}
     feature_affectors = {
-    "self_health": ["self_health", "self_defense"],
-    "self_defense": ["self_defense", "self_health"],
-    "self_attack": ["self_attack", "self_health"],
-    "other_health": ["self_attack", "other_defense"],
-    "other_defense": ["other_defense", "self_attack"],
-    "other_attack": ["self_attack", "other_defense"]
+        "self_health": ["self_health", "self_defense"],
+        "self_defense": ["self_defense", "self_health"],
+        "self_attack": ["self_attack", "self_health"],
+        "other_health": ["self_attack", "other_defense"],
+        "other_defense": ["other_defense", "self_attack"],
+        "other_attack": ["self_attack", "other_defense"]
     }
     
     @classmethod
@@ -61,6 +62,15 @@ class Move(dict):
             new_move = Move()
             for feature, function in self.iteritems():
                 new_move[feature] = function.mutate()
+#                done = False
+#                while not done:
+#                    new_feature = function.mutate()
+#                    battle_state = BattleState(players = (GreedyPlayer(self), GreedyPlayer(self)))
+#                    new_state = new_move.apply(battle_state)
+#                    if new_state.get_value(new_feature) >= battle_state.get_value(new_feature):
+#                        new_move[feature] = new_feature
+#                        done=True
+                
             return new_move
         
     def cross_over(self, other):
