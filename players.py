@@ -17,8 +17,9 @@ in the future with initial buffs like a higher defense or something.
 
 class Player(object):
     __name__ = "Abstract Player"
-    def __init__(self, movelist):
+    def __init__(self, movelist, other_movelist):
         self.movelist = movelist
+        self.other_player_moves = other_movelist
         
     def get_initial_stats(self):
         return 100, 10, 10
@@ -32,7 +33,7 @@ class RandomPlayer(Player):
         Player.__init__(self, movelist)
     
     def get_move(self, battle_state):
-        return random.choice(self.movelist.moves)
+        return random.choice(self.movelist)
         
 class EagerPlayer(Player):
     """
@@ -48,11 +49,15 @@ class EagerPlayer(Player):
 class MinimaxGame(Game):
 
     # True means it's player 1's turn
-    def __init__(self, moves):
+    def __init__(self, moves, other_player_moves):
         self.moves = moves
+        self.other_player_moves = other_player_moves
     
     def actions(self, state):
-        return self.moves
+        if state.turn:
+            return self.moves
+        else:
+            return self.other_player_moves
     
     def result(self, state, action):
         new_state= action.apply(state)
@@ -74,7 +79,7 @@ class MinimaxPlayer(Player):
     """
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist)
+        battle = MinimaxGame(self.movelist, self.other_player_moves)
         initial = BattleState(source = battle_state)
         move = alphabeta_search(initial, battle, d= 4)
         return move
@@ -86,7 +91,7 @@ class GreedyPlayer(Player):
     """
     __name__ = "Greedy Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist)
+        battle = MinimaxGame(self.movelist, self.other_player_moves)
         initial = BattleState(source = battle_state)
         move = alphabeta_search(initial, battle, d= 1)
         return move

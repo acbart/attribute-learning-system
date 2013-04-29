@@ -1,7 +1,7 @@
 import random
 from orderedset import OrderedSet
 from move_list import MoveList
-from players import PLAYERS
+from players import PLAYERS, GreedyPlayer, RandomPlayer
 from config import DEBUG
 from battle_simulation import battle_simulation
 import time
@@ -21,8 +21,8 @@ def genetic(players = None,
     
     # If needed, generate random players
     if players is None:
-        first_player = random.choice(PLAYERS)
-        second_player = random.choice(PLAYERS)
+        first_player = GreedyPlayer#random.choice(PLAYERS)
+        second_player = GreedyPlayer#random.choice(PLAYERS)
     else:
         first_player, second_player = players
     
@@ -43,8 +43,8 @@ def genetic(players = None,
                 duplicates += 1
             else:
                 value, battle_id = battle_simulation(move_list, 
-                                                     first_player(move_list),
-                                                     second_player(move_list))
+                                                     first_player(move_list[:3], move_list[3:]),
+                                                     second_player(move_list[3:], move_list[:3]))
                 simulation_results_cache[move_list.short_string()] = (value, battle_id)
             population_values.append( (move_list, value, battle_id) )
         population_values.sort(key = lambda item: -item[1]) # sort by value
