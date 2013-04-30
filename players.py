@@ -49,9 +49,10 @@ class EagerPlayer(Player):
 class MinimaxGame(Game):
 
     # True means it's player 1's turn
-    def __init__(self, moves, other_player_moves):
+    def __init__(self, moves, other_player_moves, initial_turn):
         self.moves = moves
         self.other_player_moves = other_player_moves
+        self.initial_turn = initial_turn
     
     def actions(self, state):
         if state.turn:
@@ -64,7 +65,10 @@ class MinimaxGame(Game):
         return new_state
     
     def utility(self, state, player):
-        return state.value()
+        if self.initial_turn:
+            return state.value()
+        else:
+            return -state.value()
             
     def to_move(self, state):
         return state.turn
@@ -79,7 +83,7 @@ class MinimaxPlayer(Player):
     """
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist, self.other_player_moves)
+        battle = MinimaxGame(self.movelist, self.other_player_moves, battle_state.turn)
         move = minimax_decision(battle_state, battle, d= 4)
         return move
 
@@ -90,7 +94,7 @@ class GreedyPlayer(Player):
     """
     __name__ = "Greedy Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist, self.other_player_moves)
+        battle = MinimaxGame(self.movelist, self.other_player_moves, battle_state.turn)
         move = minimax_decision(battle_state, battle, d= 2)
         return move
         
