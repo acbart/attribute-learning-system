@@ -25,6 +25,7 @@ def battle_simulation(moves, player_1, player_2):
     
     if DEBUG:
         log_battle_data("Battle %d" % (1+battle_id, ))
+        log_battle_data("\tMoves: %s" % (str(moves),))
         log_battle_data("\tTurn 0: %s" % (str(battle_state),))
     
     while battle_state.players_alive() and turns < 30:
@@ -32,6 +33,7 @@ def battle_simulation(moves, player_1, player_2):
             move = player_1.get_move(battle_state)
         else:
             move = player_2.get_move(battle_state)
+        print "TURN CHANGE"
         battle_state = move.apply(battle_state)
         move_usage[id(move)]+= 1
         turns += 1
@@ -40,7 +42,6 @@ def battle_simulation(moves, player_1, player_2):
             log_battle_data("\tTurn %d: %s" % (turns, str(battle_state)))
         
         absolute_value_record.append(battle_state.absolute_value())
-        
     if DEBUG:
         log_battle_data("\t" + battle_state.get_winner())
     

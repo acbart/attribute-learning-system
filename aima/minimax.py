@@ -14,32 +14,46 @@ def minimax_decision(state, game, d=4):
     player = game.to_move(state)
 
     def max_value(state, depth):
-        #print "\t" * depth, state.turn
+        print "\t" * depth, "N", state.turn, hash(",".join([m.short_string() for m in game.actions(state)]))
         #print "MAX", state.turn
         if game.terminal_test(state) or depth > d:
             #print "Max Term", depth
+            print "\t"*(depth), "ESCAPEN", state, game.utility(state, player)
             return game.utility(state, player)
         v = -infinity
         for a in game.actions(state):
+            print "\t"*(depth+1), state, a
             #print depth, state.turn, "BECOMES", game.result(state, a).turn
             v = max(v, min_value(game.result(state, a), depth+1))
+        print "\t"*depth, "Maximum choice in this path", v
         return v
 
     def min_value(state, depth):
-        #print "\t" * depth, state.turn
+        print "\t" * depth, "X", state.turn, hash(",".join([m.short_string() for m in game.actions(state)]))
         #print "MIN", state.turn
         if game.terminal_test(state) or depth > d:
             #print "Min Term", depth
+            print "\t"*(depth), "ESCAPEX", state, game.utility(state, player)
             return game.utility(state, player)
         v = infinity
         for a in game.actions(state):
             #print depth, state.turn, "BECOMES", game.result(state, a).turn
+            print "\t"*(depth+1), state, a
             v = min(v, max_value(game.result(state, a), depth+1))
+        print "\t"*depth, "Minimum choice in this path", v
         return v
 
     # Body of minimax_decision:
-    return argmax(game.actions(state),
-                  lambda a: min_value(game.result(state, a), 1))
+    print state.turn, hash(",".join([m.short_string() for m in game.actions(state)]))
+    v, best_a = -infinity, None
+    for a in game.actions(state):
+        new_v = min_value(game.result(state, a), 1)
+        print state, a, new_v
+        if v < new_v:
+            v = new_v
+            best_a = a
+    print "BEST is", v, best_a
+    return best_a
 
 #______________________________________________________________________________
 

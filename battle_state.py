@@ -64,9 +64,9 @@ class BattleState(object):
     
     def value(self):
         if self.turn:
-            return -(self.player_1_health - self.player_2_health)
-        else:
             return (self.player_1_health - self.player_2_health)
+        else:
+            return (self.player_2_health - self.player_1_health)
         
     def __str__(self):
         return "(H: %d, A: %d, D: %d), (H: %d, A: %d, D: %d), %s" % (self.player_1_health, self.player_1_attack, self.player_1_defense,self.player_2_health, self.player_2_attack, self.player_2_defense, "Att" if self.turn else "Def")

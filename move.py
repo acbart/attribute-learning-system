@@ -33,6 +33,11 @@ class Move(list):
         
         return new_move
         
+    def __init__(self, functions = None):
+        list.__init__(self)
+        if functions is not None:
+            self.append(functions)
+        
     def copy(self):
         new_move = Move()
         for function in self:

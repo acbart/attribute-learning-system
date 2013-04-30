@@ -91,7 +91,7 @@ class GreedyPlayer(Player):
     __name__ = "Greedy Player"
     def get_move(self, battle_state):
         battle = MinimaxGame(self.movelist, self.other_player_moves)
-        move = minimax_decision(battle_state, battle, d= 1)
+        move = minimax_decision(battle_state, battle, d= 2)
         return move
         
 PLAYERS = [MinimaxPlayer]

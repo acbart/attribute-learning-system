@@ -1,6 +1,8 @@
 import random
 from orderedset import OrderedSet
 from move_list import MoveList
+from function_vector import FunctionVector
+from move import Move
 from players import PLAYERS, GreedyPlayer, RandomPlayer
 from config import DEBUG
 from battle_simulation import battle_simulation
@@ -38,13 +40,38 @@ def genetic(players = None,
         population_values = []
         duplicates = 0
         for move_list in population:
+            
+            move_list = MoveList()
+            f = FunctionVector()
+            f.feature = "self_health"
+            f.coeffecients = {"other_attack":0}
+            f.constant = -10
+            move_list[0] = Move(f)
+            f = FunctionVector(f)
+            move_list[3] = Move(f)
+            f = FunctionVector()
+            f.feature = "other_health"
+            f.coeffecients = {"other_attack":0}
+            f.constant = -10
+            move_list[1] = Move(f)
+            f = FunctionVector(f)
+            move_list[4] = Move(f)
+            f = FunctionVector()
+            f.feature = "other_health"
+            f.coeffecients = {"other_attack":0}
+            f.constant = 0
+            move_list[2] = Move(f)
+            f = FunctionVector(f)
+            move_list[5] = Move(f)
+            
             if move_list.short_string() in simulation_results_cache:
                 value, battle_id = simulation_results_cache[move_list.short_string()]
                 duplicates += 1
             else:
+                player_movelists = move_list[:3], move_list[3:]
                 value, battle_id = battle_simulation(move_list, 
-                                                     first_player(move_list[:3], move_list[3:]),
-                                                     second_player(move_list[3:], move_list[:3]))
+                                                     first_player(*player_movelists),
+                                                     second_player(*player_movelists))
                 simulation_results_cache[move_list.short_string()] = (value, battle_id)
             population_values.append( (move_list, value, battle_id) )
         population_values.sort(key = lambda item: -item[1]) # sort by value

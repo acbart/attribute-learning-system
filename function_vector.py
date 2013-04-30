@@ -3,7 +3,7 @@ from node import Node
 from config import FEATURE_VECTOR_RANGE, FEATURE_MUTATION_FLUCTATION_RANGE, FEATURE_COEFFECIENTS_DOMAIN
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
-class FunctionVector:
+class FunctionVector(object):
     
     feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
     feature_affects = {"self_attack" : ("other_attack", "self_defense"),
