@@ -28,6 +28,7 @@ def battle_simulation(moves, player_1, player_2):
         log_battle_data("\tMoves: %s" % (str(moves),))
         log_battle_data("\tTurn 0: %s" % (str(battle_state),))
     
+    trigger = True
     while battle_state.players_alive() and turns < 30:
         if battle_state.turn:
             move = player_1.get_move(battle_state)
@@ -39,6 +40,11 @@ def battle_simulation(moves, player_1, player_2):
         if DEBUG:
             log_battle_data("\t\tMove: %s" % (str(move),))
             log_battle_data("\tTurn %d: %s" % (turns, str(battle_state)))
+        if battle_state["player_1_health"] < 1 or battle_state["player_2_health"] < 1:
+            if trigger:
+                trigger = False
+            else:
+                print "ERROR"
         
         absolute_value_record.append(battle_state.absolute_value())
     if DEBUG:

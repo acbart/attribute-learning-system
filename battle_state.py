@@ -50,4 +50,4 @@ class BattleState(dict):
         return self["player_1_health"] - self["player_2_health"]
         
     def __str__(self):
-        return "(H: %d, A: %d, D: %d), (H: %d, A: %d, D: %d), %s" % tuple(self.values() + ["Att" if self.turn else "Def"])
+        return "(H: %d, A: %d, D: %d), (H: %d, A: %d, D: %d), %s" % (self["player_1_health"], self["player_1_attack"], self["player_1_defense"], self["player_2_health"], self["player_2_attack"], self["player_2_defense"], ["Att" if self.turn else "Def"])
