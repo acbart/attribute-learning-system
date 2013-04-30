@@ -1,5 +1,6 @@
 import random
-from aima.minimax import minimax_decision, Game
+from aima.minimax import alphabeta_search as minimax_decision
+from aima.minimax import Game
 from battle_state import BattleState
 
 """
