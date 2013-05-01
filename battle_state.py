@@ -32,10 +32,10 @@ class BattleState(dict):
             return "Stalemate"
             
     def apply(self, move):
-        for function_tree in move:
-            feature = function_tree.feature
-            attribute_name = BattleState.feature_to_attribute[feature][int(self.turn)]
-            self[attribute_name] = function_tree.evaluate(self)
+        new_state = BattleState(self)
+        attribute_name = self.feature_to_attribute[move.feature][int(new_state.turn)]
+        new_state[attribute_name] = move.evaluate(new_state)
+        return new_state
         
     def players_alive(self):
         return int(self["player_1_health"]) > 0 and int(self["player_2_health"]) > 0

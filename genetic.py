@@ -1,8 +1,6 @@
 import random
 from orderedset import OrderedSet
 from move_list import MoveList
-from function_vector import FunctionVector
-from move import Move
 from config import DEBUG, MOVE_COMBINATIONS
 from battle_simulation import battle_simulation
 import time
@@ -126,8 +124,8 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
     if DEBUG:
         log_genetic_data("Final Results")
         for move_list, value, battle_id in population_values:
-            log_genetic_data("\tValue: %d, Battle: %d, Move List: %s" %
-                             (value, battle_id, move_list.short_string()))
+            log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" %
+                             (value, str(battle_id), move_list.short_string()))
     if DEBUG: genetic_log.close()
 
     # Return the best state

@@ -78,3 +78,6 @@ class FunctionVector(object):
     def short_string(self):
         return str(self.coeffecients) + " + " + str(self.constant)
         
+    def __hash__(self):
+        return hash(self.short_string())
+        

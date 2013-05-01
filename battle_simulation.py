@@ -33,7 +33,7 @@ def battle_simulation(moves, player_1, player_2):
             move = player_1.get_move(battle_state)
         else:
             move = player_2.get_move(battle_state)
-        battle_state = move.apply(battle_state)
+        battle_state = battle_state.apply(move)
         move_usage[id(move)]+= 1
         turns += 1
         if DEBUG:

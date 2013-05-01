@@ -76,6 +76,9 @@ class FunctionTree(object):
     def short_string(self):
         return self.root.short_string()
         
+    def __hash__(self):
+        return hash(self.short_string())
+        
     def _label(self):
         return ""
     

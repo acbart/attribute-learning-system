@@ -1,7 +1,7 @@
 
-RADIATION_STRENGTH = 20            # How many times to mutate something
+ATTRIBUTES = {"primary": 1, "secondary": 2}
+
 NUMBER_OF_MOVES_PER_MOVE_LIST = 6   # 
-NUMBER_OF_FEATURES_PER_MOVE = 1     # E.g. a move can affect more than one attribute
 DEBUG = True                       # Whether to log data
 
 MOVE_FEATURE_CHANGE_RATE = 1000 # 1 in MOVE_FEATURE_CHANGE_RATE of changing
@@ -21,8 +21,11 @@ BOOLEANS = (True, False)        # Simple convenience constant
 MOVE_COMBINATIONS = ["none", "single", "all"][0]
 
 # genetic.py parameters
-POPULATION_SIZE = 100
+POPULATION_SIZE = 500
 ITERATIONS_LIMIT = 10
 RETAIN_PARENTS = .1
 MUTATION_RATE = .4
 RADIATION_AMOUNT = 1
+
+from function_vector import FunctionVector
+FUNCTION_TYPE = FunctionVector

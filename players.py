@@ -62,7 +62,7 @@ class MinimaxGame(Game):
             return self.other_player_moves
     
     def result(self, state, action):
-        new_state= action.apply(state)
+        new_state= state.apply(action)
         return new_state
     
     def utility(self, state, player):

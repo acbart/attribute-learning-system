@@ -14,6 +14,5 @@ if __name__ == "__main__":
     
     for index, move in enumerate(best_result):
         print "Move", 1+index
-        for function in move:
-            print "\t",function.feature, "=", function
+        print "\t",move.feature, "=", move
             
