@@ -1,11 +1,34 @@
 from move import Move
 from config import NUMBER_OF_MOVES_PER_MOVE_LIST
+from function_vector import FunctionVector
 
 class MoveList(list):
     def __init__(self, moves = None):
         if moves is None:
             moves = [Move.generate_random_move() 
                         for i in xrange(NUMBER_OF_MOVES_PER_MOVE_LIST)]
+                        
+            found_1 = False
+            for move in moves[:3]:
+                if move[0].feature == "other_health":
+                    found_1 = True
+                    
+            found_2 = False
+            for move in moves[:3]:
+                if move[0].feature == "other_health":
+                    found_2 = True
+            
+            f = FunctionVector()
+            f.feature = "other_health"
+            f.coeffecients = {"self_attack":0, "other_defense":0}
+            f.constant = -10
+            
+            if not found_1:
+                moves[0] = Move(f)
+            
+            if not found_2:
+                moves.append(Move(f))
+            
         list.__init__(self, moves)
     
     def cross_over(self, other):

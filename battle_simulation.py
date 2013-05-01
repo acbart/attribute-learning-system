@@ -55,20 +55,23 @@ def battle_simulation(moves, player_1, player_2):
     # Was the length good?
     length_good = abs(IDEAL_TURNS - turns) <= IDEAL_TURNS_TOLERANCE
     if not length_good:
-        length_success = -50 
+        length_success = -50 * abs(IDEAL_TURNS - turns) #/ float(IDEAL_TURNS)
     else:
-        length_success = 50. * abs(turns - IDEAL_TURNS) / float(IDEAL_TURNS)
+        length_success = 50 * abs(turns - IDEAL_TURNS) #/ float(IDEAL_TURNS)
     
     # Did someone win?
-    if length_good and battle_state.is_one_winner():
-        victory_success = 50
+    if battle_state.is_one_winner():
+        victory_success = 1000
     else:
-        victory_success = -50
+        victory_success = -1000
         
     # Were attacks used evenly?
     move_usage = [usage / float(turns) for usage in move_usage.values()]
     #print sum(normalize_move_usage) , MAXIMUM_MOVE_USAGE
-    move_usage_success = -50 * numpy.std(move_usage)
+    move_usage_success = -2000 * numpy.std(move_usage)
+    
+    if move_usage_success > -200 and battle_state.is_one_winner():
+        print 'battle: ' + str(battle_id+1) + ' move usage: ' + str(move_usage) + ' std dev: ' + str(numpy.std(move_usage)) + ' move_usage_success: ' + str(move_usage_success)
     
     # Did the battle progress linearly?
     if abs(IDEAL_TURNS - turns) < IDEAL_TURNS_TOLERANCE:
@@ -81,7 +84,7 @@ def battle_simulation(moves, player_1, player_2):
         linearity_success = -50
     
     # Summate the sucesses
-    total_success = sum((length_success, victory_success, move_usage_success, linearity_success))
+    total_success = sum((victory_success, move_usage_success)) #length_success, linearity_success
     if DEBUG:
         log_battle_data("\t%d, %d, %d, %d, %d" % (length_success, victory_success, move_usage_success, linearity_success, total_success))
         
