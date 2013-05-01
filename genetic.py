@@ -4,16 +4,21 @@ from move_list import MoveList
 from function_vector import FunctionVector
 from move import Move
 from players import PLAYERS, GreedyPlayer, RandomPlayer
-from config import DEBUG
+from config import DEBUG, MOVE_COMBINATIONS
 from battle_simulation import battle_simulation
 import time
 
+from itertools import permutations
+
+def avg(values):
+    return sum(values) / float(len(values))
+
 def genetic(players = None,
-            population_size = 500, 
+            population_size = 100, 
             iterations_limit = 10,
             retain_parents = .1,
-            mutation_rate = .7,
-            radiation_amount = 50):
+            mutation_rate = .4,
+            radiation_amount = 1):
 
     # Logging for debug purposes
     if DEBUG:
@@ -40,40 +45,37 @@ def genetic(players = None,
         population_values = []
         duplicates = 0
         for move_list in population:
-            
-            # move_list = MoveList()
-            # f = FunctionVector()
-            # f.feature = "self_health"
-            # f.coeffecients = {"other_attack":0}
-            # f.constant = -10
-            # move_list[0] = Move(f)
-            # f = FunctionVector(f)
-            # move_list[3] = Move(f)
-            # f = FunctionVector()
-            # f.feature = "other_health"
-            # f.coeffecients = {"other_attack":0}
-            # f.constant = -10
-            # move_list[1] = Move(f)
-            # f = FunctionVector(f)
-            # move_list[4] = Move(f)
-            # f = FunctionVector()
-            # f.feature = "other_health"
-            # f.coeffecients = {"other_attack":0}
-            # f.constant = 0
-            # move_list[2] = Move(f)
-            # f = FunctionVector(f)
-            # move_list[5] = Move(f)
-            
             if move_list.short_string() in simulation_results_cache:
-                value, battle_id = simulation_results_cache[move_list.short_string()]
+                value, battle_ids = simulation_results_cache[move_list.short_string()]
                 duplicates += 1
             else:
-                player_movelists = move_list[:3], move_list[3:]
-                value, battle_id = battle_simulation(move_list, 
-                                                     first_player(*player_movelists),
-                                                     second_player(*player_movelists))
-                simulation_results_cache[move_list.short_string()] = (value, battle_id)
-            population_values.append( (move_list, value, battle_id) )
+                values = []
+                battle_ids = []
+                
+                # Determine what variants on this MoveList we'll test
+                if MOVE_COMBINATIONS == "all":
+                    move_lists = [(MoveList(list(permutation) + move_list.subtract(permutation)))
+                                        for permutation in permutations(move_list, len(move_list)/2)]
+                elif MOVE_COMBINATIONS == "single":
+                    move_lists = (move_list, MoveList(reversed(move_list)))
+                elif MOVE_COMBINATIONS == "none":
+                    move_lists = (move_list,)
+                
+                # Run each variant in a simulation
+                for permutation in move_lists:
+                    player_movelists = permutation[:3], permutation[3:]
+                    value, battle_id = battle_simulation(move_list, 
+                                                         first_player(*player_movelists),
+                                                         second_player(*player_movelists))
+                    values.append(value)
+                    battle_ids.append(battle_id)
+                value = avg(values)
+                
+                # Store the result in case we reuse this MoveList
+                simulation_results_cache[move_list.short_string()] = (value, battle_ids)
+            
+            population_values.append( (move_list, value, battle_ids) )
+            
         population_values.sort(key = lambda item: -item[1]) # sort by value
         
         if DEBUG:
@@ -100,8 +102,8 @@ def genetic(players = None,
         # Log the values and battle ids
         if DEBUG:
             for move_list, value, battle_id in population_values:
-                log_genetic_data("\tValue: %d, Battle: %d, Move List: %s" % 
-                                 (value, battle_id, move_list.short_string()))
+                log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" % 
+                                 (value, str(battle_id), move_list.short_string()))
             
         # create our new population
         population = OrderedSet()

@@ -70,6 +70,9 @@ class Move(list):
     
     def short_string(self):
         return "{%s}" % (", ".join("%s <= %s" % (ft.feature, ft.short_string()) for ft in self),)
+    
+    def __hash__(self):
+        return hash(self.short_string())
 
     def _label(self):
         return ""

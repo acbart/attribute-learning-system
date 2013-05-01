@@ -17,3 +17,5 @@ HEIGHT_MAX = 2              # The maximum height of a Function Tree
 RANDOM_VARIABLES = False    # Whether to use ConstantNodes (I don't know if this still works)
 
 BOOLEANS = (True, False)        # Simple convenience constant
+
+MOVE_COMBINATIONS = ["none", "single", "all"][0]

@@ -26,3 +26,10 @@ class MoveList(list):
         
     def __hash__(self):
         return hash(self.short_string())
+        
+    def subtract(self, other):
+        result = []
+        for item in self:
+            if item not in other:
+                result.append(item)
+        return result
