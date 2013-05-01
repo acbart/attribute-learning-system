@@ -19,3 +19,10 @@ RANDOM_VARIABLES = False    # Whether to use ConstantNodes (I don't know if this
 BOOLEANS = (True, False)        # Simple convenience constant
 
 MOVE_COMBINATIONS = ["none", "single", "all"][0]
+
+# genetic.py parameters
+POPULATION_SIZE = 100
+ITERATIONS_LIMIT = 10
+RETAIN_PARENTS = .1
+MUTATION_RATE = .4
+RADIATION_AMOUNT = 1

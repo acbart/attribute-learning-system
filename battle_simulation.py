@@ -27,8 +27,7 @@ def battle_simulation(moves, player_1, player_2):
         log_battle_data("Battle %d" % (1+battle_id, ))
         log_battle_data("\tMoves: %s" % (str(moves),))
         log_battle_data("\tTurn 0: %s" % (str(battle_state),))
-    
-    trigger = True
+
     while battle_state.players_alive() and turns < 30:
         if battle_state.turn:
             move = player_1.get_move(battle_state)
@@ -40,11 +39,6 @@ def battle_simulation(moves, player_1, player_2):
         if DEBUG:
             log_battle_data("\t\tMove: %s" % (str(move),))
             log_battle_data("\tTurn %d: %s" % (turns, str(battle_state)))
-        if battle_state["player_1_health"] < 1 or battle_state["player_2_health"] < 1:
-            if trigger:
-                trigger = False
-            else:
-                print "ERROR"
         
         absolute_value_record.append(battle_state.absolute_value())
     if DEBUG:
@@ -70,8 +64,8 @@ def battle_simulation(moves, player_1, player_2):
     #print sum(normalize_move_usage) , MAXIMUM_MOVE_USAGE
     move_usage_success = -2000 * numpy.std(move_usage)
     
-    if move_usage_success > -200 and battle_state.is_one_winner():
-        print 'battle: ' + str(battle_id+1) + ' move usage: ' + str(move_usage) + ' std dev: ' + str(numpy.std(move_usage)) + ' move_usage_success: ' + str(move_usage_success)
+    #if move_usage_success > -200 and battle_state.is_one_winner():
+     #   print 'battle: ' + str(battle_id+1) + ' move usage: ' + str(move_usage) + ' std dev: ' + str(numpy.std(move_usage)) + ' move_usage_success: ' + str(move_usage_success)
     
     # Did the battle progress linearly?
     if abs(IDEAL_TURNS - turns) < IDEAL_TURNS_TOLERANCE:

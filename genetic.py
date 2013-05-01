@@ -3,13 +3,7 @@ from orderedset import OrderedSet
 from move_list import MoveList
 from function_vector import FunctionVector
 from move import Move
-<<<<<<< HEAD
-from players import PLAYERS, GreedyPlayer, RandomPlayer
 from config import DEBUG, MOVE_COMBINATIONS
-=======
-from players import PLAYERS, GreedyPlayer, RandomPlayer, MinimaxPlayer
-from config import DEBUG
->>>>>>> 026166d717ddded6c770367c79c85847768d036a
 from battle_simulation import battle_simulation
 import time
 
@@ -18,12 +12,7 @@ from itertools import permutations
 def avg(values):
     return sum(values) / float(len(values))
 
-def genetic(players = None,
-            population_size = 100, 
-            iterations_limit = 10,
-            retain_parents = .1,
-            mutation_rate = .4,
-            radiation_amount = 1):
+def genetic(players, population_size, iterations_limit, retain_parents, mutation_rate, radiation_amount):
 
     # Logging for debug purposes
     if DEBUG:
@@ -31,12 +20,7 @@ def genetic(players = None,
         def log_genetic_data(string):
             genetic_log.write(string + "\n")
 
-    # If needed, generate random players
-    if players is None:
-        first_player = MinimaxPlayer#random.choice(PLAYERS)
-        second_player = MinimaxPlayer#random.choice(PLAYERS)
-    else:
-        first_player, second_player = players
+    first_player, second_player = players
 
     # Create the evaluation function
     simulation_results_cache = {}
