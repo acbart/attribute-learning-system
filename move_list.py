@@ -8,17 +8,17 @@ class MoveList(list):
                         
             found_1 = False
             for move in moves[:3]:
-                if move.feature == "other_health":
+                if move.feature == "other_primary_1":
                     found_1 = True
                     
             found_2 = False
             for move in moves[:3]:
-                if move.feature == "other_health":
+                if move.feature == "other_primary_1":
                     found_2 = True
             
             f = FUNCTION_TYPE()
-            f.feature = "other_health"
-            f.coeffecients = {"self_attack":0, "other_defense":0}
+            f.feature = "other_primary_1"
+            f.coeffecients = {"self_secondary_1":0, "other_secondary_2":0}
             f.constant = -10
             
             if not found_1:

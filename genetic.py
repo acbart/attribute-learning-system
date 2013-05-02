@@ -50,10 +50,11 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
                 
                 # Run each variant in a simulation
                 for permutation in move_lists:
-                    player_movelists = permutation[:3], permutation[3:]
-                    value, battle_id = battle_simulation(move_list, 
-                                                         first_player(*player_movelists),
-                                                         second_player(*player_movelists))
+                    player_1 = first_player(MoveList(permutation[:3]))
+                    player_2 = second_player(MoveList(permutation[3:]))
+                    player_1.opponent, player_2.opponent = player_2, player_1
+                    value, battle_id = battle_simulation(permutation, 
+                                                         player_1, player_2)
                     values.append(value)
                     battle_ids.append(battle_id)
                 value = avg(values)

@@ -1,6 +1,12 @@
 
-ATTRIBUTES = {"primary": 1, "secondary": 2}
-
+ATTRIBUTES = []
+ATTRIBUTE_TYPES = {"primary": 1, "secondary": 2}
+for person in ["self", "other"]:
+    for attribute_type, occurrence in ATTRIBUTE_TYPES.items():
+        for i in xrange(1, 1+occurrence):
+            ATTRIBUTES.append( "_".join((person, attribute_type, str(i))) )
+ATTRIBUTES = tuple(ATTRIBUTES)
+            
 NUMBER_OF_MOVES_PER_MOVE_LIST = 6   # 
 DEBUG = True                       # Whether to log data
 
@@ -21,8 +27,8 @@ BOOLEANS = (True, False)        # Simple convenience constant
 MOVE_COMBINATIONS = ["none", "single", "all"][0]
 
 # genetic.py parameters
-POPULATION_SIZE = 500
-ITERATIONS_LIMIT = 10
+POPULATION_SIZE = 10
+ITERATIONS_LIMIT = 4
 RETAIN_PARENTS = .1
 MUTATION_RATE = .4
 RADIATION_AMOUNT = 1

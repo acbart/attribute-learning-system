@@ -21,12 +21,11 @@ def battle_simulation(moves, player_1, player_2):
     battle_state = BattleState(players = (player_1, player_2))
     turns = 0
     move_usage= Counter(dict([(id(move), 0) for move in moves]))
-    absolute_value_record = [battle_state.absolute_value()]
     
     if DEBUG:
         log_battle_data("Battle %d" % (1+battle_id, ))
-        log_battle_data("\tMoves: %s" % (str(moves),))
-        log_battle_data("\tTurn 0: %s" % (str(battle_state),))
+        log_battle_data("\tMoves: %s" % (moves.short_string(),))
+        log_battle_data("\tTurn 00: %s" % (str(battle_state),))
 
     while battle_state.players_alive() and turns < 30:
         if battle_state.turn:
@@ -37,21 +36,11 @@ def battle_simulation(moves, player_1, player_2):
         move_usage[id(move)]+= 1
         turns += 1
         if DEBUG:
-            log_battle_data("\t\tMove: %s" % (str(move),))
-            log_battle_data("\tTurn %d: %s" % (turns, str(battle_state)))
-        
-        absolute_value_record.append(battle_state.absolute_value())
+            log_battle_data("\tTurn %02d: %s    Move: %s" % (turns, str(battle_state), move.short_string()))
     if DEBUG:
         log_battle_data("\t" + battle_state.get_winner())
     
     # Calculate Metrics of success
-    
-    # Was the length good?
-    length_good = abs(IDEAL_TURNS - turns) <= IDEAL_TURNS_TOLERANCE
-    if not length_good:
-        length_success = -50 * abs(IDEAL_TURNS - turns) #/ float(IDEAL_TURNS)
-    else:
-        length_success = 50 * abs(turns - IDEAL_TURNS) #/ float(IDEAL_TURNS)
     
     # Did someone win?
     if battle_state.is_one_winner():
@@ -67,20 +56,10 @@ def battle_simulation(moves, player_1, player_2):
     #if move_usage_success > -200 and battle_state.is_one_winner():
      #   print 'battle: ' + str(battle_id+1) + ' move usage: ' + str(move_usage) + ' std dev: ' + str(numpy.std(move_usage)) + ' move_usage_success: ' + str(move_usage_success)
     
-    # Did the battle progress linearly?
-    if abs(IDEAL_TURNS - turns) < IDEAL_TURNS_TOLERANCE:
-        def ideal_decay(time):
-            return 200 - time * 200. / turns
-        distance_from_ideal = sum([abs(ideal_decay(i) - actual) for i, actual in enumerate(absolute_value_record)])
-        maximum = 100. * (turns + 1)
-        linearity_success = -50 * distance_from_ideal / maximum
-    else:
-        linearity_success = -50
-    
     # Summate the sucesses
     total_success = sum((victory_success, move_usage_success)) #length_success, linearity_success
     if DEBUG:
-        log_battle_data("\t%d, %d, %d, %d, %d" % (length_success, victory_success, move_usage_success, linearity_success, total_success))
+        log_battle_data("\t%d, %d, %d" % (victory_success, move_usage_success, total_success))
         
     battle_id+= 1
     return total_success, battle_id

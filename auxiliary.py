@@ -7,3 +7,7 @@ def random_weighted_subset(weights, max_length):
                 possibilities += [feature] * occurrences
         features.append(random.choice(possibilities))
     return features
+    
+def abbreviate(string):
+    words = string.split("_")
+    return "".join([word[0] for word in words])

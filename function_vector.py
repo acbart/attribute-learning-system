@@ -2,16 +2,17 @@ import random
 from node import Node
 from config import FEATURE_VECTOR_RANGE, FEATURE_MUTATION_FLUCTATION_RANGE, FEATURE_COEFFECIENTS_DOMAIN
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
+from auxiliary import abbreviate
 
 class FunctionVector(object):
     
     feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
-    feature_affects = {"self_attack" : ("other_attack", "self_defense"),
-                       "self_health" : ("other_attack", "self_defense"),
-                       "self_defense": ("other_attack", "other_health"),
-                       "other_attack" : ("self_attack", "other_defense"),
-                       "other_health" : ("self_attack", "other_defense"),
-                       "other_defense": ("self_attack", "self_health")}
+    feature_affects = {"self_primary_1" : ("other_secondary_1", "self_secondary_2"),
+                       "self_secondary_1" : ("other_secondary_1", "self_secondary_2"),
+                       "self_secondary_2": ("other_secondary_1", "other_primary_1"),
+                       "other_primary_1" : ("self_secondary_1", "other_secondary_2"),
+                       "other_secondary_1" : ("self_secondary_1", "other_secondary_2"),
+                       "other_secondary_2": ("self_secondary_1", "self_primary_1")}
     
     def __init__(self, source= None):
         # If not given a node, create a new random tree
@@ -76,7 +77,7 @@ class FunctionVector(object):
         return str(self.coeffecients) + " + " + str(self.constant)
     
     def short_string(self):
-        return str(self.coeffecients) + " + " + str(self.constant)
+        return "(" + abbreviate(self.feature) + "=" + "{:.2f}".format(self.constant) + "".join([("%+.1f*%s" % (value, abbreviate(key))) for key, value in self.coeffecients.iteritems()]) + ")"
         
     def __hash__(self):
         return hash(self.short_string())

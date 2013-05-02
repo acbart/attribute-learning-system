@@ -18,48 +18,44 @@ in the future with initial buffs like a higher defense or something.
 
 class Player(object):
     __name__ = "Abstract Player"
-    def __init__(self, movelist, other_movelist):
-        self.movelist = movelist
-        self.other_player_moves = other_movelist
+    def __init__(self, moves):
+        self.moves = moves
+        self.opponent = None
         
     def get_initial_stats(self):
-        return 100, 10, 10
+        return {"primary_1": 100, "secondary_1": 10, "secondary_2": 10}
     
 class RandomPlayer(Player):
     """
     A random player always chooses a random attack.
     """
     __name__ = "Random Player"
-    def __init__(self, movelist):
-        Player.__init__(self, movelist)
     
     def get_move(self, battle_state):
-        return random.choice(self.movelist)
+        return random.choice(self.moves)
         
 class EagerPlayer(Player):
     """
     An eager player always chooses the first attack.
     """
     __name__ = "Eager Player"
-    def __init__(self, movelist):
-        Player.__init__(self, movelist)
     
     def get_move(self, battle_state):
-        return self.movelist.moves[0]
+        return self.moves[0]
         
 class MinimaxGame(Game):
 
     # True means it's player 1's turn
-    def __init__(self, moves, other_player_moves, initial_turn):
+    def __init__(self, moves, opponent, initial_turn):
         self.moves = moves
-        self.other_player_moves = other_player_moves
+        self.opponent = opponent
         self.initial_turn = initial_turn
     
     def actions(self, state):
-        if state.turn:
+        if state.turn == self.initial_turn:
             return self.moves
         else:
-            return self.other_player_moves
+            return self.opponent.moves
     
     def result(self, state, action):
         new_state= state.apply(action)
@@ -67,9 +63,9 @@ class MinimaxGame(Game):
     
     def utility(self, state, player):
         if self.initial_turn:
-            return state.value()
+            return state.v["player_1_primary_1"] - state.v["player_2_primary_1"] 
         else:
-            return -state.value()
+            return state.v["player_2_primary_1"] - state.v["player_1_primary_1"] 
             
     def to_move(self, state):
         return state.turn
@@ -84,7 +80,7 @@ class MinimaxPlayer(Player):
     """
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist, self.other_player_moves, battle_state.turn)
+        battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
         move = minimax_decision(battle_state, battle, d= 5)
         return move
 
@@ -95,7 +91,7 @@ class GreedyPlayer(Player):
     """
     __name__ = "Greedy Player"
     def get_move(self, battle_state):
-        battle = MinimaxGame(self.movelist, self.other_player_moves, battle_state.turn)
+        battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
         move = minimax_decision(battle_state, battle, d=0)
         return move
         

@@ -2,6 +2,9 @@
 import math
 import operator
 
+from config import ATTRIBUTES
+from auxiliary import abbreviate
+
 """
 This file defines a bunch of operators for a FunctionTree. They are either
 Unary operators (with one argument) or Binary operators (with two arguments).
@@ -14,30 +17,14 @@ There is also the "clamp" function, which is used to force results to stay
 between 0 and 100.
 """
 
-def self_health(state): return state.get_value("self_health")
-self_health.short_name = "H"
-
-def self_attack(state): return state.get_value("self_attack")
-self_attack.short_name = "A"
-
-def self_defense(state): return state.get_value("self_defense")
-self_defense.short_name = "D"
-
-def other_health(state): return state.get_value("other_health")
-other_health.short_name = "h"
-
-def other_attack(state): return state.get_value("other_attack")
-other_attack.short_name = "a"
-
-def other_defense(state): return state.get_value("other_defense")
-other_defense.short_name = "d"
-        
-NULLARY_OPERATORS = [self_health, self_attack, self_defense, other_health, other_attack, other_defense]
-for operator in NULLARY_OPERATORS:
-    operator.formatted_name = operator.__name__
+NULLARY_OPERATORS = []
+for attribute in ATTRIBUTES:
+    operator = lambda state: state.get_value(attribute)
     operator.arity = 0
     operator.is_attribute = True
-    
+    operator.formatted_name = attribute
+    operator.short_name = abbreviate(attribute)
+
 get_feature_operator = dict([(operator.__name__, operator) for operator in NULLARY_OPERATORS])
 
 CONSTANT_OPERATORS = []
