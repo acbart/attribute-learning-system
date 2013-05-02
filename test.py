@@ -12,7 +12,10 @@ def filter(self, player, attribute):
 import timeit
 
 setup1 = """
-k = (1,2,3,4,5,6)
+class K(object):
+    __slots__ = ["a","b","c","d","e","f"]
+k = K()
+k.c = 100
 """
 
 setup2 = """
@@ -20,5 +23,5 @@ k = dict([(1+x, "banana") for x in xrange(5)])
 """
 
 
-print timeit.timeit('j(3)', setup=setup1, number = 10000000)
-print timeit.timeit('j(3)', setup=setup2, number = 10000000)
+print timeit.timeit('getattr(k, "c")', setup=setup1, number = 10000000)
+print timeit.timeit('k[3]', setup=setup2, number = 10000000)

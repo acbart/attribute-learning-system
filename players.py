@@ -61,14 +61,11 @@ class MinimaxGame(Game):
         new_state= state.apply(action)
         return new_state
     
-    def utility(self, state, player):
+    def utility(self, state):
         if self.initial_turn:
             return state.v["player_1_primary_1"] - state.v["player_2_primary_1"] 
         else:
             return state.v["player_2_primary_1"] - state.v["player_1_primary_1"] 
-            
-    def to_move(self, state):
-        return state.turn
     
     def terminal_test(self, state):
         return not state.players_alive()

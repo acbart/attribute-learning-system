@@ -75,13 +75,50 @@ def alphabeta_full_search(state, game, d=4):
                   lambda a: min_value(game.result(state, a),
                                       -infinity, infinity, 1))
 
-debug = False
-if debug: minimax_log = open("minimax.log", "w")
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
+
+    def max_value(state, alpha, beta, depth):
+        if cutoff_test(state, depth):
+            return eval_fn(state)
+        v = -infinity
+        for i, a in enumerate(game.actions(state)):
+            new_v = min_value(game.result(state, a), alpha, beta, depth+1)
+            v = max(v, new_v)
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
+        return v
+
+    def min_value(state, alpha, beta, depth, name=None):
+        if cutoff_test(state, depth):
+            return eval_fn(state)
+        v = infinity
+        for i, a in enumerate(game.actions(state)):
+            new_v = max_value(game.result(state, a), alpha, beta, depth+1)
+            v = min(v, new_v)
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+        return v
+
+    # Body of alphabeta_search starts here:
+    # The default test cuts off at depth d or at a terminal state
+    cutoff_test = (cutoff_test or
+                   (lambda state,depth: depth>d or game.terminal_test(state)))
+    eval_fn = eval_fn or (lambda state: game.utility(state))
+    act = argmax(game.actions(state),
+                  lambda a: min_value(game.result(state, a),
+                                      -infinity, infinity, 0, a))
+    return act
+    
+debug = False
+if debug: minimax_log = open("minimax.log", "w")
+def alphabeta_search_debug(state, game, d=4, cutoff_test=None, eval_fn=None):
+    """Search game to determine best action; use alpha-beta pruning.
+    This version cuts off search and uses an evaluation function."""
     global debug
-    player = game.to_move(state)
     
     if debug: minimax_log.write("New testrun!\n")
 
@@ -128,7 +165,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or
                    (lambda state,depth: depth>d or game.terminal_test(state)))
-    eval_fn = eval_fn or (lambda state: game.utility(state, player))
+    eval_fn = eval_fn or (lambda state: game.utility(state))
     act = argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a),
                                       -infinity, infinity, 0, a))
