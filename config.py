@@ -6,6 +6,13 @@ for person in ["self", "other"]:
         for i in xrange(1, 1+occurrence):
             ATTRIBUTES.append( "_".join((person, attribute_type, str(i))) )
 ATTRIBUTES = tuple(ATTRIBUTES)
+
+ATTRIBUTE_AFFECTS = {"self_primary_1" : ("other_secondary_1", "self_secondary_2"),
+                     "self_secondary_1" : ("other_secondary_1", "self_secondary_2"),
+                     "self_secondary_2": ("other_secondary_1", "other_primary_1"),
+                     "other_primary_1" : ("self_secondary_1", "other_secondary_2"),
+                     "other_secondary_1" : ("self_secondary_1", "other_secondary_2"),
+                     "other_secondary_2": ("self_secondary_1", "self_primary_1")}
             
 NUMBER_OF_MOVES_PER_MOVE_LIST = 6   # 
 DEBUG = True                       # Whether to log data

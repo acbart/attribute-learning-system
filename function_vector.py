@@ -1,24 +1,16 @@
 import random
 from node import Node
-from config import FEATURE_VECTOR_RANGE, FEATURE_MUTATION_FLUCTATION_RANGE, FEATURE_COEFFECIENTS_DOMAIN
+from config import FEATURE_VECTOR_RANGE, FEATURE_MUTATION_FLUCTATION_RANGE, FEATURE_COEFFECIENTS_DOMAIN, ATTRIBUTE_AFFECTS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 from auxiliary import abbreviate
 
 class FunctionVector(object):
     
-    feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
-    feature_affects = {"self_primary_1" : ("other_secondary_1", "self_secondary_2"),
-                       "self_secondary_1" : ("other_secondary_1", "self_secondary_2"),
-                       "self_secondary_2": ("other_secondary_1", "other_primary_1"),
-                       "other_primary_1" : ("self_secondary_1", "other_secondary_2"),
-                       "other_secondary_1" : ("self_secondary_1", "other_secondary_2"),
-                       "other_secondary_2": ("self_secondary_1", "self_primary_1")}
-    
     def __init__(self, source= None):
         # If not given a node, create a new random tree
         if source is None:
-            self.feature = random.choice(self.feature_affects.keys())
-            affects = self.feature_affects[self.feature]
+            self.feature = random.choice(ATTRIBUTE_AFFECTS.keys())
+            affects = ATTRIBUTE_AFFECTS[self.feature]
             self.coeffecients = {}
             for input_feature in random.sample(affects, random.randint(*FEATURE_VECTOR_RANGE)):
                 self.coeffecients[input_feature] = random.randint(*FEATURE_COEFFECIENTS_DOMAIN)
