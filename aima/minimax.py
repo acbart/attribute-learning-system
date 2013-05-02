@@ -107,7 +107,7 @@ def alphabeta_search(state, game, d=4):
     # The default test cuts off at depth d or at a terminal state
     act = argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a),
-                                      -infinity, infinity, 0, a))
+                                      -infinity, infinity, 0))
     return act
     
 debug = False
