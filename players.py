@@ -58,8 +58,7 @@ class MinimaxGame(Game):
             return self.opponent.moves
     
     def result(self, state, action):
-        new_state= state.apply(action)
-        return new_state
+        return state.apply(action)
     
     def utility(self, state):
         if self.initial_turn:
@@ -78,7 +77,7 @@ class MinimaxPlayer(Player):
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
         battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
-        move = minimax_decision(battle_state, battle, d= 5)
+        move = minimax_decision(battle_state, battle, d= 3)
         return move
 
 class GreedyPlayer(Player):
