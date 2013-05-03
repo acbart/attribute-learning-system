@@ -23,7 +23,7 @@ Austin Cory Bart\\
 \alignauthor
 K Aljanar\\
        \affaddr{Virginia Tech}\\
-       \email{karvt.edu}
+       \email{kar@vt.edu}
 \alignauthor
 }
 
@@ -36,71 +36,81 @@ Blah blah blah abstract goes here.
 
 % A category with the (minimum) three required fields
 % TODO: We need to look up the tags for this research area
-\category{K.3.1}{COMPUTERS AND EDUCATION}{Computer Uses in Education}
-%A category including the fourth, optional field follows...
-\category{K.3.2}{COMPUTERS AND EDUCATION}{Computer and Information Science Education}
+\category{1.2.1}{ARTIFICIAL INTELLIGENCE}{Applications and Expert Systems --- \textit{games}}
 
 \terms{Genetic Programming}
 
 \keywords{Genetic, Programming, Game, Development} % NOT required for Proceedings
 
-\section{Problem Statement}
+\section{Problem}
 	%The Computer Science Education community has an established interest in skills \cite{bayliss:csgames}.
+	
+\section{Approach}
+
+    \subsection{Prior Work}
+
+    \subsection{Target Audience}
+
+\section{Implementation}
+
+    \subsection{Genetic Algorithm}
+
+    \subsection{Function Tree}
+
+        \subsubsection{Mutation Algorithm}
+        \subsubsection{Cross-over Algorithm}
+
+%    Mixed-children variant - http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
+    Weighted-delay cross-over variant - Potentially novel
+    Mixed-children weighted-delay cross-over
+
+    \subsection{Function Vector}
     
-	
-	\subsection{More details}
+        \subsubsection{Mutation Algorithm}
+        \subsubsection{Cross-over Algorithm}
 
-    Blahdyblah
+    \subsection{Simulation}
 
-\begin{itemize}
-	\item This is a list
-	\item And there's even some \textbf{bold text} in this list.
-	\item that's enough listing.
-\end{itemize}
+    \subsection{Fitness Function}
 
-    Pancakes.
-	
-\section{Solution}
+    \subsection{Players}
 
-\subsection{Prior Work}
-
-Need to edit this
-	
-\subsection{Target Audience}
-	
-But I'm so tired 
-
-\begin{description}
-	\item[Sleepiness] The state that I'm currently in
-	\item[Laziness] I'm like this way too often
-	\item[Hungry] I should probably eat soon.
-\end{description}
-
-% system is described in Figure \ref{fig:architecture}.
-	
-%\begin{figure}
-%\centering
-%\epsfig{file=filename_without_extension_so_can_have_both_eps_and_png, width=3in}
-%\label{fig:architecture} % <--- internal label
-%\caption{This text appears under the figure}
-%\end{figure}
-	
-
-%\begin{listings}
-%Listings are pretty cool. It's how you embed code. But I forgot to include the package.
-%\end{listings}
-
-\section{Future Work}
-
-    \subsection{More work}
+        \subsubsection{Minimax Player}
     
-    \subsubsection{WE NEED TO GO DEEPER}
+        \subsubsection{Greedy Player}
+    
+        \subsubsection{Random Player}
 
-    This needs work
+        \subsubsection{Utility calculation}
+        
+            Primaries vs. Primaries + Secondaries
+            
+\section{Validation}
+
+    \subsection{Function Tree}
+    
+        \subsubsection{Levenshtein Edit Distance}
+        
+            \paragraph{Mutation}
+            \paragraph{Cross-over}
+            
+        \subsubsection{Numerical Analysis}
+        
+            \paragraph{Mutation}
+            \paragraph{Cross-over}
+            
+\section{Results}
+    
+    \subsection{Parameters}
 
 \section{Conclusion}
 
-	Blather
+	We need to do work!
+    
+\section{Future Work}
+
+    \subsection{Genetic Operators}
+
 
 %
 % The following two commands are all you need in the

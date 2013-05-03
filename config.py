@@ -40,5 +40,5 @@ RETAIN_PARENTS = .1
 MUTATION_RATE = .4
 RADIATION_AMOUNT = 1
 
-from function_vector import FunctionVector
-FUNCTION_TYPE = FunctionVector
+from function_tree import FunctionTree
+FUNCTION_TYPE = FunctionTree

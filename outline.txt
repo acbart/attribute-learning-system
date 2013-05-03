@@ -10,11 +10,11 @@ Implementation
     Description of genetic operators
         Mutation algorithm
         Cross-over algorithm
-        Mixed-children variant
-            http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
-        Weighted-delay cross-over variant
-            Potentially novel
-        Mixed-children weighted-delay cross-over
+            Mixed-children variant
+                http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
+            Weighted-delay cross-over variant
+                Potentially novel
+            Mixed-children weighted-delay cross-over
         
     Fitness Function
         Battle simulation algorithm
