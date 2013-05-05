@@ -1,7 +1,13 @@
 import random
 from node import Node
-from config import HEIGHT_MAX, BOOLEANS
+from config import HEIGHT_MAX, BOOLEANS, ATTRIBUTE_AFFECTS
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
+
+get_ops_from_affector = {}
+for feature, affectors in ATTRIBUTE_AFFECTS.iteritems():
+    get_ops_from_affector[feature] = [feature]
+    for affector in affectors:
+        get_ops_from_affector[feature].append(get_feature_operator[affector])
 
 class FunctionTree(object):
     """    
@@ -11,16 +17,20 @@ class FunctionTree(object):
     
     feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
     
-    def __init__(self, root=None):
+    def __init__(self, root=None, feature = None):
         # If not given a node, create a new random tree
-        if root is None:
-            root = Node.random_tree()#random_tree()
-        self.root = root
-        self.feature = self.choose_random_attribute_leaf()
-        if self.feature is None:
-            self.feature = random.choice(self.feature_choices)
+        if feature is None:
+            if root is None:
+                root = Node.random_tree()#random_tree()
+            self.root = root
+            self.feature = self.choose_random_attribute_leaf()
+            if self.feature is None:
+                self.feature = random.choice(self.feature_choices)
+            else:
+                self.feature = self.feature.operator.formatted_name
         else:
-            self.feature = self.feature.operator.formatted_name
+            self.feature = feature
+            self.root = Node.random_tree(choices = get_ops_from_affector[feature])
         
     def choose_random_attribute_leaf(self):
         return self.root.choose_random_attribute_leaf()

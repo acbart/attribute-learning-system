@@ -77,7 +77,7 @@ class MinimaxPlayer(Player):
     __name__ = "Minimax Player"
     def get_move(self, battle_state):
         battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
-        move = minimax_decision(battle_state, battle, d= 3)
+        move = minimax_decision(battle_state, battle, d= 4)
         return move
 
 class GreedyPlayer(Player):

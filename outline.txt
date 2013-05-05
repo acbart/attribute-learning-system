@@ -40,6 +40,14 @@ Validation of genetic operators
         
 Results
     Tweakable parameters
+        
+        *->Function Tree vs. Function Vector
+        
+        *->Mutation vs. Cross-over vs. Top-perfomers (and interactions of those parameters)
+        
+        *->Different players
+        *->Number of attributes
+        
         Different population sizes
         Number of iterations
         Mutation Rate
@@ -50,7 +58,6 @@ Results
         FunctionTree height
         Different combinations of player strategies
         Different fitness functions
-        Number of attributes
         Changing what operators are available
             Stochiastic operators
 Conclusions

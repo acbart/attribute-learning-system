@@ -17,7 +17,7 @@ class Node(object):
                             1 : UNARY_OPERATORS,
                             2 : BINARY_OPERATORS}
                             
-    def __init__(self, operator = None, arity=None, children = None):
+    def __init__(self, operator = None, arity=None, children = None, choices=None):
         """
         If an operator is NOT specified, then a random operator will be chosen. If
             an arity IS specified, an operator of the that arity will be randomly
@@ -28,14 +28,14 @@ class Node(object):
         """
         if operator is None:
             if arity is None:
-                operator = random.choice(NULLARY_OPERATORS + 
-                                         UNARY_OPERATORS + 
-                                         BINARY_OPERATORS + random.sample(CONSTANT_OPERATORS, 3))
+                choices = (NULLARY_OPERATORS if choices is None else choices) + UNARY_OPERATORS + BINARY_OPERATORS + random.sample(CONSTANT_OPERATORS, 3)
             else:
                 if not random.randint(0, 5) and not arity:
-                    operator = random.choice(CONSTANT_OPERATORS)
+                    choices = CONSTANT_OPERATORS
                 else:
-                    operator = random.choice(Node.operators_from_arity[arity])
+                    if arity > 0 or choices is None:
+                        choices = Node.operators_from_arity[arity]
+            operator = random.choice(choices)
         self.operator = operator
         if children is None:
             children = []
@@ -44,7 +44,7 @@ class Node(object):
         self.children = children
 
     @staticmethod
-    def random_tree(height_left=HEIGHT_MAX):
+    def random_tree(height_left=HEIGHT_MAX, choices=None):
         """
         Utility function for creating random trees of a maximal height.
         
@@ -52,8 +52,9 @@ class Node(object):
         """
         if height_left == 0:
             return Node(arity=0)
-        arity = random.randint(0, 2)
-        children = [Node.random_tree(height_left-1) for child in xrange(arity)]
+        arity = random.choice((0,1,1,2,2,2,2))#random.randint(0, 2)
+        children = [Node.random_tree(height_left-1, choices=None) 
+                        for child in xrange(arity)]
         new_tree = Node(arity=arity, children=children)
         return new_tree
         
@@ -229,7 +230,19 @@ class Node(object):
         293-301, University of Wisconsin, Madison, Wisconsin, USA, 22-25 
         July 1998.
         """
+        # Are we in an interior node?
+        if self.operator.arity == other.operator.arity and self.operator.arity:
+            new_operator = random.choice((self.operator, other.operator))
+            new_children = []
+            for self_child, other_child in zip(self.children, other.children):
+                new_child = self_child.cross_over(other_child)
+                new_children.append(new_child)
+            return Node(operator=new_operator, children=new_children)
+        # Then just choose a subtree and use it
+        else:
+            return (random.choice((self, other))).copy()
         
+    def cross_over_normal(self, other):
         # Are we in an interior node?
         if self.operator.arity == other.operator.arity and self.operator.arity:
             new_operator = random.choice((self.operator, other.operator))

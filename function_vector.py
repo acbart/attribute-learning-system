@@ -6,13 +6,15 @@ from auxiliary import abbreviate
 
 class FunctionVector(object):
     
-    def __init__(self, source= None):
+    def __init__(self, source= None, feature= None):
         # If not given a node, create a new random tree
         if source is None:
-            self.feature = random.choice(ATTRIBUTE_AFFECTS.keys())
-            affects = ATTRIBUTE_AFFECTS[self.feature]
+            if feature is None:
+                self.feature = random.choice(ATTRIBUTE_AFFECTS.keys())
+            else:
+                self.feature = feature
             self.coeffecients = {}
-            for input_feature in random.sample(affects, random.randint(*FEATURE_VECTOR_RANGE)):
+            for input_feature in ATTRIBUTE_AFFECTS[self.feature]:
                 self.coeffecients[input_feature] = random.randint(*FEATURE_COEFFECIENTS_DOMAIN)
             self.constant = random.randint(*FEATURE_COEFFECIENTS_DOMAIN)
         else:
@@ -28,11 +30,12 @@ class FunctionVector(object):
     
     def mutate(self):
         new_function = FunctionVector(self)
+        fluctuation = random.randint(*FEATURE_MUTATION_FLUCTATION_RANGE)
         if random.randint(0, 3) == 0:
-            new_function.constant += random.randint(*FEATURE_MUTATION_FLUCTATION_RANGE)
+            new_function.constant += fluctuation
         else:
             mutant_feature = random.choice(new_function.coeffecients.keys())
-            new_function.coeffecients[mutant_feature] += random.randint(-10, 10)
+            new_function.coeffecients[mutant_feature] += fluctuation
         return new_function
     
     def cross_over(self, other):

@@ -7,13 +7,21 @@ for person in ["self", "other"]:
             ATTRIBUTES.append( "_".join((person, attribute_type, str(i))) )
 ATTRIBUTES = tuple(ATTRIBUTES)
 
-ATTRIBUTE_AFFECTS = {"self_primary_1" : ("other_secondary_1", "self_secondary_2"),
-                     "self_secondary_1" : ("other_secondary_1", "self_secondary_2"),
-                     "self_secondary_2": ("other_secondary_1", "other_primary_1"),
-                     "other_primary_1" : ("self_secondary_1", "other_secondary_2"),
-                     "other_secondary_1" : ("self_secondary_1", "other_secondary_2"),
-                     "other_secondary_2": ("self_secondary_1", "self_primary_1")}
-            
+PRIMARIES = [str(i) for i in range(1, 1+ATTRIBUTE_TYPES["primary"])]
+SECONDARIES = [str(i) for i in range(1, 1+ATTRIBUTE_TYPES["secondary"])]
+ATTRIBUTE_AFFECTS = {}
+for index in PRIMARIES:
+    ATTRIBUTE_AFFECTS["self_primary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES])
+    ATTRIBUTE_AFFECTS["other_primary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
+                                                     ["other_secondary_"+i for i in SECONDARIES])
+for index in SECONDARIES:
+    ATTRIBUTE_AFFECTS["self_secondary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
+                                                       ["self_primary_"+i for i in PRIMARIES])
+    ATTRIBUTE_AFFECTS["other_secondary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
+                                                     ["other_secondary_"+i for i in SECONDARIES]+
+                                                     ["self_primary_"+i for i in PRIMARIES]+
+                                                     ["other_primary_"+i for i in PRIMARIES])
+
 NUMBER_OF_MOVES_PER_MOVE_LIST = 6   # 
 DEBUG = True                       # Whether to log data
 
@@ -34,11 +42,8 @@ BOOLEANS = (True, False)        # Simple convenience constant
 MOVE_COMBINATIONS = ["none", "single", "all"][0]
 
 # genetic.py parameters
-POPULATION_SIZE = 100
-ITERATIONS_LIMIT = 4
-RETAIN_PARENTS = .1
-MUTATION_RATE = .4
-RADIATION_AMOUNT = 1
-
-from function_tree import FunctionTree
-FUNCTION_TYPE = FunctionTree
+POPULATION_SIZE = 500
+ITERATIONS_LIMIT = 25
+RETAIN_PARENTS = .3
+MUTATION_RATE = .5
+RADIATION_AMOUNT = 5

@@ -24,8 +24,9 @@ for attribute in ATTRIBUTES:
     operator.is_attribute = True
     operator.formatted_name = attribute
     operator.short_name = abbreviate(attribute)
+    NULLARY_OPERATORS.append(operator)
 
-get_feature_operator = dict([(operator.__name__, operator) for operator in NULLARY_OPERATORS])
+get_feature_operator = dict([(operator.formatted_name, operator) for operator in NULLARY_OPERATORS])
 
 CONSTANT_OPERATORS = []
 for constant in xrange(0, 100):
