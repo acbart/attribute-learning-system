@@ -24,7 +24,6 @@ for index in SECONDARIES:
 
 NUMBER_OF_MOVES_PER_MOVE_LIST = 6   #
 DEBUG = True                       # Whether to log data
-CMDLINE = True                     # Are we using cmdline arguments
 
 MOVE_FEATURE_CHANGE_RATE = 1000 # 1 in MOVE_FEATURE_CHANGE_RATE of changing
 
