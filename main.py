@@ -1,5 +1,5 @@
 import random
-random.seed(33)
+#random.seed(33)
 from config import CONFIG
 import argparse
 
