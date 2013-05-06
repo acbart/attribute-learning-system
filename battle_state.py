@@ -1,3 +1,4 @@
+from config import CONFIG
 from config import ATTRIBUTES, ATTRIBUTE_TYPES
 from auxiliary import abbreviate
 

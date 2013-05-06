@@ -9,7 +9,6 @@ FUNCTION_TYPE = FunctionVector
 class MoveList(list):
     def __init__(self, moves = None):
         if moves is None:
-            #TODO: multiple primaries
             moves = [FUNCTION_TYPE() for i in xrange(NUMBER_OF_MOVES_PER_MOVE_LIST)]
             self.force_damagers(moves)
             
@@ -31,7 +30,6 @@ class MoveList(list):
             l[mid] = FUNCTION_TYPE(feature = "other_primary_"+str(random.randint(1,ATTRIBUTE_TYPES["primary"])))
     
     def mutate(self):
-        #TODO: move list order (minus 0 and N/2)
         new_list = [move.mutate() for move in self]
         if not random.randint(0,5):
             mid = len(new_list) / 2

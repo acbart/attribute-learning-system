@@ -1,8 +1,10 @@
 import random
 random.seed(33)
 import config
+
 from genetic import genetic
 from players import PLAYERS, GreedyPlayer, RandomPlayer, MinimaxPlayer
+
 
 if __name__ == "__main__":
     best_result = genetic((MinimaxPlayer,MinimaxPlayer),
@@ -15,4 +17,4 @@ if __name__ == "__main__":
     for index, move in enumerate(best_result):
         print "Move", 1+index
         print "\t",move.feature, "=", move
-            
+    print CONFIG

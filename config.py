@@ -1,4 +1,3 @@
-
 ATTRIBUTES = []
 ATTRIBUTE_TYPES = {"primary": 1, "secondary": 2}
 for person in ["self", "other"]:
