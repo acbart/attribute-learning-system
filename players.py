@@ -1,7 +1,6 @@
 import random
 from aima.minimax import alphabeta_search as minimax_decision
 from aima.minimax import Game
-from battle_state import BattleState
 
 """
 Player is a class that makes decision in a battle_simulation. When they are

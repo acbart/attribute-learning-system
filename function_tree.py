@@ -1,10 +1,10 @@
 import random
 from node import Node
-from config import HEIGHT_MAX, BOOLEANS, ATTRIBUTE_AFFECTS
+from config import CONFIG
 from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
 
 get_ops_from_affector = {}
-for feature, affectors in ATTRIBUTE_AFFECTS.iteritems():
+for feature, affectors in CONFIG['attribute_affects'].iteritems():
     get_ops_from_affector[feature] = [feature]
     for affector in affectors:
         get_ops_from_affector[feature].append(get_feature_operator[affector])
@@ -18,7 +18,6 @@ class FunctionTree(object):
     feature_choices = [op.formatted_name for op in NULLARY_OPERATORS]
 
     def __init__(self, root=None, feature = None):
-        print 'tree init'
         # If not given a node, create a new random tree
         if feature is None:
             if root is None:
@@ -52,7 +51,7 @@ class FunctionTree(object):
         #mutant_node_index = random.randrange(len(self.root))
         leaf_node_indexes, length_traversed = self.root.find_leave_indexes()
         mutant_node_index = random.choice(leaf_node_indexes)
-        new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, HEIGHT_MAX)
+        new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, CONFIG['height_max'])
         return FunctionTree(new_root)
 
     def cross_over(self, other):

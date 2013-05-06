@@ -2,7 +2,7 @@
 import math
 import operator
 
-from config import ATTRIBUTES
+from config import CONFIG
 from auxiliary import abbreviate
 
 """
@@ -18,7 +18,7 @@ between 0 and 100.
 """
 
 NULLARY_OPERATORS = []
-for attribute in ATTRIBUTES:
+for attribute in CONFIG['attributes']:
     operator = lambda state: state.get_value(attribute)
     operator.arity = 0
     operator.is_attribute = True
@@ -49,7 +49,7 @@ def bound_check(minimum = 0, maximum = 100):
     """
     Decorator for clamping a functions output to be between 0 and 100, or within
     a specified range.
-    
+
     I don't actually use it.
     """
     def wrap(f):
@@ -57,7 +57,7 @@ def bound_check(minimum = 0, maximum = 100):
             return min(maximum, max(minimum, f(*args)))
         return new_f
     return wrap
-    
+
 def log(state, value):
     try:
         return math.log(value)
@@ -69,23 +69,23 @@ def sqrt(state, value):
         return math.sqrt(value)
     except ValueError:
         return 0
-        
+
 def sqr(state, value):
     return value ** 2
 
 def ceil(state, value):
     return math.ceil(value)
-   
+
 def floor(state, value):
     return math.floor(value)
-    
+
 def double(state, value): return value * 2.
-def halve(state, value): return value / 2.    
+def halve(state, value): return value / 2.
 def triple(state, value): return value * 3.
 def third(state, value): return value / 3.
 def increment(state, value): return value + 1.
 def decrement(state, value): return value - 1.
-    
+
 log.formatted_name = "log(%s)"
 log.short_name = "log"
 sqrt.formatted_name = "sqrt(%s)"
@@ -108,24 +108,24 @@ increment.formatted_name = "(%s + 1)"
 increment.short_name = "+1"
 decrement.formatted_name = "(%s - 1)"
 decrement.short_name = "-1"
-        
-UNARY_OPERATORS = [double, halve, triple, third, increment, decrement] #ceil, floor, log, sqrt, 
+
+UNARY_OPERATORS = [double, halve, triple, third, increment, decrement] #ceil, floor, log, sqrt,
 for operator in UNARY_OPERATORS:
     operator.arity = 1
     operator.is_attribute = False
-   
+
 def fmod(state, left, right):
     try:
         return math.fmod(left, right)
     except ValueError:
-        return 0        
-    
+        return 0
+
 def div(state, left, right):
     try:
         return left / right
     except ZeroDivisionError:
         return 0
-    
+
 def floordiv(state, left, right):
     try:
         return left // right
@@ -140,7 +140,7 @@ def multiply(state, left, right):
 
 def subtract(state, left, right):
     return left - right
-    
+
 fmod.formatted_name = "mod(%s, %s)"
 fmod.short_name = "mod"
 div.formatted_name = "(%s / %s)"
@@ -158,4 +158,3 @@ BINARY_OPERATORS = [add, multiply, subtract, div] #floordiv, fmod
 for operator in BINARY_OPERATORS:
     operator.arity = 2
     operator.is_attribute = False
-    

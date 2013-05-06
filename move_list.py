@@ -21,9 +21,9 @@ class MoveList(list):
     def force_damagers(self, l):
         mid = len(l) / 2
         if not any(m.feature.startswith("other_primary_") for m in l[:mid]):
-            l[0] = FUNCTION_TYPE(feature = "other_primary_"+str(random.randint(1,CONFIG['attribute_types']["primary"])))
+            l[0] = CONFIG['function_type'](feature = "other_primary_"+str(random.randint(1,CONFIG['attribute_types']["primary"])))
         if not any(m.feature.startswith("other_primary_") for m in l[mid+1:]):
-            l[mid] = FUNCTION_TYPE(feature = "other_primary_"+str(random.randint(1,CONFIG['attribute_types']["primary"])))
+            l[mid] = CONFIG['function_type'](feature = "other_primary_"+str(random.randint(1,CONFIG['attribute_types']["primary"])))
 
     def mutate(self):
         new_list = [move.mutate() for move in self]

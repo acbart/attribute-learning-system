@@ -1,4 +1,4 @@
-from config import DEBUG, IDEAL_TURNS, IDEAL_TURNS_TOLERANCE
+from config import DEBUG
 from battle_state import BattleState
 from collections import Counter
 

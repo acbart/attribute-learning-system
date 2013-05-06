@@ -2,7 +2,6 @@ import random
 random.seed(33)
 from config import CONFIG
 import argparse
-from genetic import genetic
 
 if __name__ == "__main__":
 
@@ -46,6 +45,7 @@ if __name__ == "__main__":
     CONFIG['attributes'] = ATTRIBUTES
     CONFIG['primaries'] = PRIMARIES
     CONFIG['secondaries'] = SECONDARIES
+    CONFIG['attribute_affects'] = ATTRIBUTE_AFFECTS
 
     # Update the Function Type
     if CONFIG['function_type'] == "vector":
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # Run the system
     from genetic import genetic
-    best_result = genetic(CONFIG['players'],
+    best_result = genetic((CONFIG['player1'], CONFIG['player2']),
                           CONFIG['population_size'],
                           CONFIG['iterations_limit'],
                           CONFIG['retain_percent'],

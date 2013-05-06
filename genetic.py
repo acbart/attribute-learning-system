@@ -1,7 +1,7 @@
 import random
 from orderedset import OrderedSet
 from move_list import MoveList
-from config import DEBUG, MOVE_COMBINATIONS
+from config import DEBUG, CONFIG
 from battle_simulation import battle_simulation
 import time
 
@@ -53,12 +53,12 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
                 battle_ids = []
 
                 # Determine what variants on this MoveList we'll test
-                if MOVE_COMBINATIONS == "all":
+                if CONFIG['move_combinations'] == "all":
                     move_lists = [(MoveList(list(permutation) + move_list.subtract(permutation)))
                                         for permutation in permutations(move_list, len(move_list)/2)]
-                elif MOVE_COMBINATIONS == "single":
+                elif CONFIG['move_combinations'] == "single":
                     move_lists = (move_list, MoveList(reversed(move_list)))
-                elif MOVE_COMBINATIONS == "none":
+                elif CONFIG['move_combinations'] == "none":
                     move_lists = (move_list,)
 
                 # Run each variant in a simulation

@@ -1,43 +1,42 @@
 import random
-from node import Node
-from config import FEATURE_VECTOR_RANGE, FEATURE_MUTATION_FLUCTATION_RANGE, FEATURE_COEFFECIENTS_DOMAIN, ATTRIBUTE_AFFECTS
-from function_operators import clamp, NULLARY_OPERATORS, get_feature_operator
+from config import CONFIG
+from function_operators import clamp
 from auxiliary import abbreviate
 
 class FunctionVector(object):
-    
+
     def __init__(self, source= None, feature= None):
         # If not given a node, create a new random tree
         if source is None:
             if feature is None:
-                self.feature = random.choice(ATTRIBUTE_AFFECTS.keys())
+                self.feature = random.choice(CONFIG['attribute_affects'].keys())
             else:
                 self.feature = feature
             self.coeffecients = {}
-            for input_feature in ATTRIBUTE_AFFECTS[self.feature]:
-                self.coeffecients[input_feature] = random.randint(*FEATURE_COEFFECIENTS_DOMAIN)
-            self.constant = random.randint(*FEATURE_COEFFECIENTS_DOMAIN)
+            for input_feature in CONFIG['attribute_affects'][self.feature]:
+                self.coeffecients[input_feature] = random.randint(*CONFIG['feature_coeffecients_domain'])
+            self.constant = random.randint(*CONFIG['feature_coeffecients_domain'])
         else:
             self.feature = source.feature
             self.coeffecients = dict(source.coeffecients)
             self.constant = source.constant
-    
+
     def copy(self):
         """
         copy(self): return a new FunctionTree based on the old one. Nothing changes.
         """
         return FunctionVector(self)
-    
+
     def mutate(self):
         new_function = FunctionVector(self)
-        fluctuation = random.randint(*FEATURE_MUTATION_FLUCTATION_RANGE)
+        fluctuation = random.randint(*CONFIG['feature_mutation_fluctation_range'])
         if random.randint(0, 3) == 0:
             new_function.constant += fluctuation
         else:
             mutant_feature = random.choice(new_function.coeffecients.keys())
             new_function.coeffecients[mutant_feature] += fluctuation
         return new_function
-    
+
     def cross_over(self, other):
         if self.feature != other.feature:
             return (random.choice((self, other))).copy()
@@ -51,12 +50,12 @@ class FunctionVector(object):
                     new_function.coeffecients[input_feature] = coeffecient
             new_function.constant = (new_function.constant + other.constant) /2.
             return new_function
-    
+
     def evaluate(self, state):
         """
         state (BattleState)
-        
-        return an integer by plugging in the values from the state into this 
+
+        return an integer by plugging in the values from the state into this
         function.
         """
         result = state.get_value(self.feature)
@@ -64,16 +63,15 @@ class FunctionVector(object):
             result += state.get_value(input_feature) * coeffecient
         result += self.constant
         return clamp(result)
-    
+
     def __len__(self):
         return len(self.coeffecients)
-    
+
     def __str__(self):
         return str(self.coeffecients) + " + " + str(self.constant)
-    
+
     def short_string(self):
         return "(" + abbreviate(self.feature) + "=" + "{:.2f}".format(self.constant) + "".join([("%+.1f*%s" % (value, abbreviate(key))) for key, value in self.coeffecients.iteritems()]) + ")"
-        
+
     def __hash__(self):
         return hash(self.short_string())
-        

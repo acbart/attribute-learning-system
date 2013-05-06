@@ -1,28 +1,28 @@
 import random
-from config import RANDOM_VARIABLES, BOOLEANS, HEIGHT_MAX
+from config import CONFIG
 from function_operators import BINARY_OPERATORS, UNARY_OPERATORS, NULLARY_OPERATORS, CONSTANT_OPERATORS
-        
+
 class Node(object):
     """
     A Node is basically an operator and its arguments. If a node has a nullary
     operator (i.e. has no arguments), then it's an attribute (e.g. other_health).
-    
+
     Important properties:
         operator (function): check out function_operators.py for examples
         children (listof Node): an immutable list of the arguments of this node
         lock (Boolean): whether this particular node is a nullary operator that MUST be kept during mutations.
     """
-    
+
     operators_from_arity = {0 : NULLARY_OPERATORS,
                             1 : UNARY_OPERATORS,
                             2 : BINARY_OPERATORS}
-                            
+
     def __init__(self, operator = None, arity=None, children = None, choices=None):
         """
         If an operator is NOT specified, then a random operator will be chosen. If
             an arity IS specified, an operator of the that arity will be randomly
             chosen.
-            
+
         If no children are specified, then new random nullary nodes will be created
             as children.
         """
@@ -44,20 +44,20 @@ class Node(object):
         self.children = children
 
     @staticmethod
-    def random_tree(height_left=HEIGHT_MAX, choices=None):
+    def random_tree(height_left=CONFIG['height_max'], choices=None):
         """
         Utility function for creating random trees of a maximal height.
-        
+
         Only used in tests, not by the genetic algorithm.
         """
         if height_left == 0:
             return Node(arity=0)
         arity = random.choice((0,1,1,2,2,2,2))#random.randint(0, 2)
-        children = [Node.random_tree(height_left-1, choices=None) 
+        children = [Node.random_tree(height_left-1, choices=None)
                         for child in xrange(arity)]
         new_tree = Node(arity=arity, children=children)
         return new_tree
-        
+
     def get_attribute_leaves(self):
         """
         Get a specific leaf, which is *index* away from this *node*.
@@ -69,25 +69,25 @@ class Node(object):
             return result
         else:
             return [self] if self.operator.is_attribute else []
-        
+
     def choose_random_attribute_leaf(self):
         attribute_leaves = self.get_attribute_leaves()
         if attribute_leaves:
             return random.choice(attribute_leaves)
         else:
             return None
-    
+
     def copy(self):
         """
         Returns a complete copy of this node and its children.
-        
-        If lock is True, then also copy any lock status in the nullary nodes. 
+
+        If lock is True, then also copy any lock status in the nullary nodes.
             Otherwise, turn off any locking encountered.
         """
         children_copies = [child.copy() for child in self.children]
-        return Node(operator = self.operator, 
+        return Node(operator = self.operator,
                     children = children_copies)
-    
+
     def evaluate(self, state):
         """
         Given the values specified in the *state* (a BattleState), perform the
@@ -95,13 +95,13 @@ class Node(object):
         """
         arguments = [child.evaluate(state) for child in self.children]
         return self.operator(state, *arguments)
-        
+
     def __len__(self):
         """
         Count how many subnodes are in this node.
         """
         return 1 + sum(len(child) for child in self.children)
-        
+
     def count_leaves(self):
         """
         Count how many terminal nodes (leaves, or in this case, nodes that have
@@ -111,7 +111,7 @@ class Node(object):
             return sum(child.count_leaves() for child in self.children)
         else:
             return 1
-            
+
     def count_attribute_leaves(self):
         """
         Count how many terminal nodes (leaves, or in this case, nodes that have
@@ -121,14 +121,14 @@ class Node(object):
             return sum(child.count_attribute_leaves() for child in self.children)
         else:
             return 1 if self.operator.is_attribute else 0
-    
+
     def __str__(self):
         """
         Return a long string represention of this node, with full names and
         operators.
         """
         return self.operator.formatted_name % tuple([str(child) for child in self.children])
-    
+
     def short_string(self):
         """
         Return a concise string representation of this node. Any locked nodes
@@ -137,21 +137,21 @@ class Node(object):
         this = self.operator.short_name
         children = ",".join([child.short_string() for child in self.children])
         return this + "("+children+")"
-    
+
     def _label(self):
         return self.operator.short_name
-    
+
     label = property(_label)
-            
+
     def mutate(self, height_left):
         """
         Return a mutated version of this node.
         """
-        
+
         # If we're out of room, just return a Nullary node
         if height_left == 0:
             return Node(arity = 0)
-        
+
         # 50% chance of promoting a child to replace this node. (50% is arbitrarly chosen)
         if self.operator.arity > 0 and random.choice((True, False)):
             promoted_child = random.choice(self.children)
@@ -168,7 +168,7 @@ class Node(object):
                 node_to_kill = random.choice(children_copies)
                 children_copies.remove(node_to_kill)
             return Node(arity = new_arity, children = children_copies)
-            
+
     def mutate_index(self, current_index, mutant_index, height_left):
         """
         Find a specific node and mutate it.
@@ -187,7 +187,7 @@ class Node(object):
                 new_children.append(new_child)
                 nodes_traversed += new_nodes_traversed
             return Node(operator = self.operator, children = new_children), nodes_traversed
-    
+
     def find_leave_indexes(self, current_index = 0):
         if self.children:
             nodes_traversed = 1
@@ -199,35 +199,35 @@ class Node(object):
             return leaves, nodes_traversed
         else:
             return [current_index], 1
-            
+
     def cross_over(self, other):
         """
         The following Description is from:
         http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
-        
-        "According to [12], the GP uniform crossover process starts 
-        at the tree's root node and works its way down each tree along 
-        some path until finding function nodes of differing arity at the 
-        similar location. Furthermore it can swap every node up to this 
-        point with its counterpart in the other tree without altering the 
-        structure of either. Any node in one tree having a 
-        corresponding node at the same location in the other is said to 
-        be located within the common region. Those pairs of nodes 
-        within the common region that have the same arity are referred 
-        to as interior. The common region necessarily includes all 
-        interior nodes. Once the interior nodes have been identified, the 
-        parent trees are copied. Interior nodes are selected for crossover 
-        with some probability which is generally set to 0.5. Crossover 
-        involves exchanging the selected nodes between the trees, 
-        while those nodes not selected for crossover remain unaffected. 
-        Non-interior nodes within the common region can also be 
-        crossed, but in this case the nodes and their subtrees are 
+
+        "According to [12], the GP uniform crossover process starts
+        at the tree's root node and works its way down each tree along
+        some path until finding function nodes of differing arity at the
+        similar location. Furthermore it can swap every node up to this
+        point with its counterpart in the other tree without altering the
+        structure of either. Any node in one tree having a
+        corresponding node at the same location in the other is said to
+        be located within the common region. Those pairs of nodes
+        within the common region that have the same arity are referred
+        to as interior. The common region necessarily includes all
+        interior nodes. Once the interior nodes have been identified, the
+        parent trees are copied. Interior nodes are selected for crossover
+        with some probability which is generally set to 0.5. Crossover
+        involves exchanging the selected nodes between the trees,
+        while those nodes not selected for crossover remain unaffected.
+        Non-interior nodes within the common region can also be
+        crossed, but in this case the nodes and their subtrees are
         swapped."
-        
-        [12] Poli R., Langdon W.B. On the search properties of different crossover 
-        operators in genetic programming. In J. R. Koza, et al., editors, Genetic 
-        Programming 1998:Proceedings of the Third Annual Conference, pages 
-        293-301, University of Wisconsin, Madison, Wisconsin, USA, 22-25 
+
+        [12] Poli R., Langdon W.B. On the search properties of different crossover
+        operators in genetic programming. In J. R. Koza, et al., editors, Genetic
+        Programming 1998:Proceedings of the Third Annual Conference, pages
+        293-301, University of Wisconsin, Madison, Wisconsin, USA, 22-25
         July 1998.
         """
         # Are we in an interior node?
@@ -241,7 +241,7 @@ class Node(object):
         # Then just choose a subtree and use it
         else:
             return (random.choice((self, other))).copy()
-        
+
     def cross_over_normal(self, other):
         # Are we in an interior node?
         if self.operator.arity == other.operator.arity and self.operator.arity:
@@ -254,4 +254,3 @@ class Node(object):
         # Then just choose a subtree and use it
         else:
             return (random.choice((self, other))).copy()
-        
