@@ -81,3 +81,5 @@ Human trial
     With best results
     Flip a coin to decide which players get which fitness functions
     Try 5 of one fitness function, 5 of the other, to play 10 games using a movelist and then see how they evalute
+    
+http://julian.togelius.com/

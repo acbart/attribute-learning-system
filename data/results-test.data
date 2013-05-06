@@ -1,6 +1,0 @@
-Name | Player 1 Type | Player 2 Type | Function Type | Primary Attributes | Secondary Attributes | Parents Retained | Mutation Rate
-test | MinimaxPlayer | MinimaxPlayer | FunctionTree | 1 | 2 | 0.3 | 0.5
-
-Iteration | Time Taken | Maximum Utility | Average Utility | Stddev of Utility | Battle ID | MoveList
-1 | 36.962 | 666.666666667 | -765.761262899 | 911.35667131 | 4 | [(other_secondary_1 - (self_secondary_1 / 3)), ((other_secondary_2 / 2) / (self_secondary_1 - 1)), ((other_primary_1 + other_secondary_2) / other_primary_1), ((other_secondary_2 + other_primary_1) - (self_primary_1 / self_secondary_1)), ((1 + 1) / 2), self_secondary_2]
-2 | 25.188 | 666.666666667 | -338.056202059 | 922.44588114 | 4 | [(other_secondary_1 - (self_secondary_1 / 3)), ((other_secondary_2 / 2) / (self_secondary_1 - 1)), ((other_primary_1 + other_secondary_2) / other_primary_1), ((other_secondary_2 + other_primary_1) - (self_primary_1 / self_secondary_1)), ((1 + 1) / 2), self_secondary_2]
