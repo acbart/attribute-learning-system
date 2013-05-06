@@ -1,5 +1,5 @@
 import random
-from config import ATTRIBUTE_TYPES, NUMBER_OF_MOVES_PER_MOVE_LIST
+from config import ATTRIBUTE_TYPES, NUMBER_OF_MOVES_PER_MOVE_LIST, FUNC_TYPE
 
 from function_vector import FunctionVector
 from function_tree import FunctionTree
@@ -8,6 +8,14 @@ FUNCTION_TYPE = FunctionVector
 
 class MoveList(list):
     def __init__(self, moves = None):
+
+        if FUNC_TYPE == 'tree':
+            print 'tree type'
+            FUNCTION_TYPE = FunctionTree
+        elif FUNC_TYPE == 'vector':
+            print 'vector type'
+            FUNCTION_TYPE = FunctionVector
+
         if moves is None:
             moves = [FUNCTION_TYPE() for i in xrange(NUMBER_OF_MOVES_PER_MOVE_LIST)]
             self.force_damagers(moves)

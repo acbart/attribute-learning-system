@@ -41,8 +41,10 @@ BOOLEANS = (True, False)        # Simple convenience constant
 
 MOVE_COMBINATIONS = ["none", "single", "all"][0]
 
+FUNC_TYPE = 'vector'
+
 # genetic.py parameters
-POPULATION_SIZE = 500
+POPULATION_SIZE = 50
 ITERATIONS_LIMIT = 2
 RETAIN_PARENTS = .3
 MUTATION_RATE = .5
