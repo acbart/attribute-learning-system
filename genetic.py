@@ -12,6 +12,19 @@ def avg(values):
 
 def genetic(players, population_size, iterations_limit, retain_parents, mutation_rate, radiation_amount):
 
+    # Iteration log
+    results_log = open('results.log', 'w')
+    results_log.write('Player 1 Type | Player 2 Type | Population | Total Iterations | Parents Retained | Mutation Rate | Radiation Amount' + "\n")
+    results_log.write('' + players[0].__name__)
+    results_log.write(' | ' + players[1].__name__)
+    results_log.write(' | ' + str(population_size))
+    results_log.write(' | ' + str(iterations_limit))
+    results_log.write(' | ' + str(retain_parents))
+    results_log.write(' | ' + str(mutation_rate))
+    results_log.write(' | ' + str(radiation_amount) + "\n\n")
+
+    results_log.write('Iteration | Time Taken | MoveList Utility | Battle ID | MoveList')
+
     # Logging for debug purposes
     if DEBUG:
         genetic_log = open('genetic.log', 'w')
@@ -38,7 +51,7 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
             else:
                 values = []
                 battle_ids = []
-                
+
                 # Determine what variants on this MoveList we'll test
                 if MOVE_COMBINATIONS == "all":
                     move_lists = [(MoveList(list(permutation) + move_list.subtract(permutation)))
@@ -47,23 +60,23 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
                     move_lists = (move_list, MoveList(reversed(move_list)))
                 elif MOVE_COMBINATIONS == "none":
                     move_lists = (move_list,)
-                
+
                 # Run each variant in a simulation
                 for permutation in move_lists:
                     player_1 = first_player(MoveList(permutation[:3]))
                     player_2 = second_player(MoveList(permutation[3:]))
                     player_1.opponent, player_2.opponent = player_2, player_1
-                    value, battle_id = battle_simulation(permutation, 
+                    value, battle_id = battle_simulation(permutation,
                                                          player_1, player_2)
                     values.append(value)
                     battle_ids.append(battle_id)
                 value = avg(values)
-                
+
                 # Store the result in case we reuse this MoveList
                 simulation_results_cache[move_list.short_string()] = (value, battle_ids)
-            
+
             population_values.append( (move_list, value, battle_ids) )
-            
+
         population_values.sort(key = lambda item: -item[1]) # sort by value
 
         if DEBUG:
@@ -90,7 +103,7 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
         # Log the values and battle ids
         if DEBUG:
             for move_list, value, battle_id in population_values:
-                log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" % 
+                log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" %
                                  (value, str(battle_id), move_list.short_string()))
 
         # create our new population
@@ -116,6 +129,16 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
 
         # Report to the user that we've finished an iteration!
         print "Iteration", str(iteration+1), "Time:", round(time.time() - prior, 3)
+
+        # Log details of this iteration
+        move_list, moveset_value, battle_id = population_values[0]
+        results_log.write("\n" + str(iteration+1))
+        results_log.write(" | " + str(round(time.time() - prior, 3)))
+        results_log.write(" | " + str(moveset_value))
+        results_log.write(" | " + str(battle_id[0]))
+        results_log.write(" | " + str(move_list))
+
+        # Set timer for next iteration
         prior = time.time()
 
     # Calculate the final resulting population
@@ -128,6 +151,9 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
             log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" %
                              (value, str(battle_id), move_list.short_string()))
     if DEBUG: genetic_log.close()
+
+    # Close the results log
+    results_log.close()
 
     # Return the best state
     return results[0][0]
