@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('-retain_percent', "--retain_percent", type=float, help='percentage of population to retain, given as a decimal', default=CONFIG['retain_percent'])
     parser.add_argument('-mutation_rate', "--mutation_rate", type=float, help='percentage of population to mutate, given as a decimal', default=CONFIG['mutation_rate'])
     parser.add_argument('-radiation_amount', "--radiation_amount", type=int, help='level of mutation undergone during mutate phase', default=CONFIG['radiation_amount'])
+    parser.add_argument('-name', '--name', type=str, help="The name of the resulting .data file", default="untitled")
 
     # Put CL args into the config dict
     CONFIG.update(vars(parser.parse_args()))

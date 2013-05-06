@@ -4,6 +4,7 @@ from move_list import MoveList
 from config import DEBUG, CONFIG
 from battle_simulation import battle_simulation
 import time
+import numpy
 
 from itertools import permutations
 
@@ -13,17 +14,18 @@ def avg(values):
 def genetic(players, population_size, iterations_limit, retain_parents, mutation_rate, radiation_amount):
 
     # Iteration log
-    results_log = open('results.log', 'w')
-    results_log.write('Player 1 Type | Player 2 Type | Population | Total Iterations | Parents Retained | Mutation Rate | Radiation Amount' + "\n")
-    results_log.write('' + players[0].__name__)
+    results_log = open('data/results-%s.data' % CONFIG['name'], 'w')
+    results_log.write('Name | Player 1 Type | Player 2 Type | Function Type | Primary Attributes | Secondary Attributes | Parents Retained | Mutation Rate' + "\n")
+    results_log.write('' + CONFIG['name'])
+    results_log.write(' | ' + players[0].__name__)
     results_log.write(' | ' + players[1].__name__)
-    results_log.write(' | ' + str(population_size))
-    results_log.write(' | ' + str(iterations_limit))
+    results_log.write(' | ' + CONFIG['function_type'].__name__)
+    results_log.write(' | ' + str(CONFIG['primary_attributes']))
+    results_log.write(' | ' + str(CONFIG['secondary_attributes']))
     results_log.write(' | ' + str(retain_parents))
-    results_log.write(' | ' + str(mutation_rate))
-    results_log.write(' | ' + str(radiation_amount) + "\n\n")
+    results_log.write(' | ' + str(mutation_rate) + "\n\n")
 
-    results_log.write('Iteration | Time Taken | MoveList Utility | Battle ID | MoveList')
+    results_log.write('Iteration | Time Taken | Maximum Utility | Average Utility | Stddev of Utility | Battle ID | MoveList')
 
     # Logging for debug purposes
     if DEBUG:
@@ -132,9 +134,12 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
 
         # Log details of this iteration
         move_list, moveset_value, battle_id = population_values[0]
+        all_utilities = [population_value[1] for population_value in population_values]
         results_log.write("\n" + str(iteration+1))
         results_log.write(" | " + str(round(time.time() - prior, 3)))
         results_log.write(" | " + str(moveset_value))
+        results_log.write(" | " + str(numpy.mean(all_utilities)))
+        results_log.write(" | " + str(numpy.std(all_utilities)))
         results_log.write(" | " + str(battle_id[0]))
         results_log.write(" | " + str(move_list))
 

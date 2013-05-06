@@ -5,7 +5,7 @@ CONFIG['retain_percent'] = .3
 CONFIG['mutation_rate'] =  .5
 CONFIG['radiation_amount'] = 5
 CONFIG['number_of_moves_per_move_list'] = 6   #
-DEBUG = True                       # Whether to log data
+DEBUG = False                       # Whether to log data
 
 CONFIG['feature_vector_range'] = (1,2)
 CONFIG['feature_coeffecients_domain'] = (-5, 5)
