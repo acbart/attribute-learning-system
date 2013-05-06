@@ -2,6 +2,7 @@ import random
 random.seed(33)
 from config import CONFIG
 import argparse
+from genetic import genetic
 
 if __name__ == "__main__":
 
