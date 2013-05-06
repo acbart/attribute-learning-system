@@ -22,8 +22,9 @@ for index in SECONDARIES:
                                                      ["self_primary_"+i for i in PRIMARIES]+
                                                      ["other_primary_"+i for i in PRIMARIES])
 
-NUMBER_OF_MOVES_PER_MOVE_LIST = 6   # 
+NUMBER_OF_MOVES_PER_MOVE_LIST = 6   #
 DEBUG = True                       # Whether to log data
+CMDLINE = True                     # Are we using cmdline arguments
 
 MOVE_FEATURE_CHANGE_RATE = 1000 # 1 in MOVE_FEATURE_CHANGE_RATE of changing
 
@@ -43,7 +44,7 @@ MOVE_COMBINATIONS = ["none", "single", "all"][0]
 
 # genetic.py parameters
 POPULATION_SIZE = 500
-ITERATIONS_LIMIT = 25
+ITERATIONS_LIMIT = 2
 RETAIN_PARENTS = .3
 MUTATION_RATE = .5
 RADIATION_AMOUNT = 5

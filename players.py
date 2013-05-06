@@ -7,7 +7,7 @@ from battle_state import BattleState
 Player is a class that makes decision in a battle_simulation. When they are
 defined, they should be given a movelist, which they can use to make decisions.
 For instance, a RandomPlayer will choose a move randomly, but a MiniMax player
-will actually attempt to find an ideal move to play. 
+will actually attempt to find an ideal move to play.
 
 A Player should also define "get_initial_stats", this way we can have players
 in the future with initial buffs like a higher defense or something.
@@ -21,28 +21,28 @@ class Player(object):
     def __init__(self, moves):
         self.moves = moves
         self.opponent = None
-        
+
     def get_initial_stats(self):
         return {"primary_1": 100, "secondary_1": 10, "secondary_2": 10}
-    
+
 class RandomPlayer(Player):
     """
     A random player always chooses a random attack.
     """
     __name__ = "Random Player"
-    
+
     def get_move(self, battle_state):
         return random.choice(self.moves)
-        
+
 class EagerPlayer(Player):
     """
     An eager player always chooses the first attack.
     """
     __name__ = "Eager Player"
-    
+
     def get_move(self, battle_state):
         return self.moves[0]
-        
+
 class MinimaxGame(Game):
 
     # True means it's player 1's turn
@@ -50,22 +50,24 @@ class MinimaxGame(Game):
         self.moves = moves
         self.opponent = opponent
         self.initial_turn = initial_turn
-    
+
     def actions(self, state):
         if state.turn == self.initial_turn:
             return self.moves
         else:
             return self.opponent.moves
-    
+
     def result(self, state, action):
         return state.apply(action)
-    
+
     def utility(self, state):
         if self.initial_turn:
-            return state.v["player_1_primary_1"] - state.v["player_2_primary_1"] 
+            if state.is_player_dead("player_1"): return 0
+            return sum(state.get_primary_values("player_1")) - sum(state.get_primary_values("player_2"))
         else:
-            return state.v["player_2_primary_1"] - state.v["player_1_primary_1"] 
-    
+            if state.is_player_dead("player_2"): return 0
+            return sum(state.get_primary_values("player_2")) - sum(state.get_primary_values("player_1"))
+
     def terminal_test(self, state):
         return not state.players_alive()
 
@@ -90,5 +92,5 @@ class GreedyPlayer(Player):
         battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
         move = minimax_decision(battle_state, battle, d=0)
         return move
-        
+
 PLAYERS = [MinimaxPlayer]
