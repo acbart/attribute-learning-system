@@ -1,6 +1,7 @@
 import random
 from aima.minimax import alphabeta_search as minimax_decision
 from aima.minimax import Game
+from config import CONFIG
 
 """
 Player is a class that makes decision in a battle_simulation. When they are
@@ -22,7 +23,12 @@ class Player(object):
         self.opponent = None
 
     def get_initial_stats(self):
-        return {"primary_1": 100, "secondary_1": 10, "secondary_2": 10}
+        initial_values = {}
+        for primary in xrange(CONFIG['attribute_types']["primary"]):
+            initial_values["primary_"+str(1+primary)] = 100
+        for primary in xrange(CONFIG['attribute_types']["secondary"]):
+            initial_values["secondary_"+str(1+primary)] = 10
+        return initial_values
 
 class RandomPlayer(Player):
     """
