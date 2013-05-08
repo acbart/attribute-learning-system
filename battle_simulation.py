@@ -45,16 +45,15 @@ def battle_simulation(moves, player_1, player_2):
     # Did someone win?
     if battle_state.is_one_winner():
         victory_success = 1000
+        winner = 1 if battle_state.is_player_dead("player_2") else 2
     else:
         victory_success = -1000
+        winner = 0
 
     # Were attacks used evenly?
     move_usage = [usage / float(turns) for usage in move_usage.values()]
     #print sum(normalize_move_usage) , MAXIMUM_MOVE_USAGE
     move_usage_success = -2000 * numpy.std(move_usage)
-
-    if move_usage_success > -200 and battle_state.is_one_winner():
-        print 'battle: ' + str(battle_id+1) + ' move usage: ' + str(move_usage) + ' std dev: ' + str(numpy.std(move_usage)) + ' move_usage_success: ' + str(move_usage_success)
 
     # Summate the sucesses
     total_success = sum((victory_success, move_usage_success)) #length_success, linearity_success
@@ -62,4 +61,4 @@ def battle_simulation(moves, player_1, player_2):
         log_battle_data("\t%d, %d, %d" % (victory_success, move_usage_success, total_success))
 
     battle_id+= 1
-    return total_success, battle_id
+    return total_success, battle_id, winner

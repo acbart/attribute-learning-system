@@ -48,11 +48,12 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
         duplicates = 0
         for move_list in population:
             if move_list.short_string() in simulation_results_cache:
-                value, battle_ids = simulation_results_cache[move_list.short_string()]
+                value, battle_ids, winners = simulation_results_cache[move_list.short_string()]
                 duplicates += 1
             else:
                 values = []
                 battle_ids = []
+                winners = []
 
                 # Determine what variants on this MoveList we'll test
                 if CONFIG['move_combinations'] == "all":
@@ -68,16 +69,16 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
                     player_1 = first_player(MoveList(permutation[:3]))
                     player_2 = second_player(MoveList(permutation[3:]))
                     player_1.opponent, player_2.opponent = player_2, player_1
-                    value, battle_id = battle_simulation(permutation,
-                                                         player_1, player_2)
+                    value, battle_id, winner = battle_simulation(permutation, player_1, player_2)
                     values.append(value)
                     battle_ids.append(battle_id)
+                    winners.append(winner)
                 value = avg(values)
 
                 # Store the result in case we reuse this MoveList
-                simulation_results_cache[move_list.short_string()] = (value, battle_ids)
+                simulation_results_cache[move_list.short_string()] = (value, battle_ids, winners)
 
-            population_values.append( (move_list, value, battle_ids) )
+            population_values.append( (move_list, value, battle_ids, winners) )
 
         population_values.sort(key = lambda item: -item[1]) # sort by value
 
@@ -104,7 +105,7 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
 
         # Log the values and battle ids
         if DEBUG:
-            for move_list, value, battle_id in population_values:
+            for move_list, value, battle_id, winner in population_values:
                 log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" %
                                  (value, str(battle_id), move_list.short_string()))
 
@@ -113,12 +114,12 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
         top_perfomers = population_values[:parents_retained]
 
         # Retain the top performers of the old generation
-        for move_list, value, battle_id in top_perfomers:
+        for move_list, value, battle_id, winner in top_perfomers:
             population.add(move_list)
 
         # Add in the mutants!
         while len(population) - parents_retained  < mutants_generated:
-            mutant, value, battle_id = random.choice(top_perfomers)
+            mutant, value, battle_id, winner = random.choice(top_perfomers)
             for r in xrange(radiation_amount):
                 mutant = mutant.mutate()
             population.add(mutant)
@@ -133,7 +134,7 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
         print "Iteration", str(iteration+1), "Time:", round(time.time() - prior, 3)
 
         # Log details of this iteration
-        move_list, moveset_value, battle_id = population_values[0]
+        move_list, moveset_value, battle_id, winner = population_values[0]
         all_utilities = [population_value[1] for population_value in population_values]
         results_log.write("\n" + str(iteration+1))
         results_log.write(" | " + str(round(time.time() - prior, 3)))
@@ -152,7 +153,7 @@ def genetic(players, population_size, iterations_limit, retain_parents, mutation
     # Close up the log
     if DEBUG:
         log_genetic_data("Final Results")
-        for move_list, value, battle_id in population_values:
+        for move_list, value, battle_id, winner in population_values:
             log_genetic_data("\tValue: %d, Battle: %s, Move List: %s" %
                              (value, str(battle_id), move_list.short_string()))
     if DEBUG: genetic_log.close()

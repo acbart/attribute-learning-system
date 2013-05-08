@@ -43,7 +43,8 @@ Blah blah blah abstract goes here.
 \keywords{Genetic, Programming, Game, Development} % NOT required for Proceedings
 
 \section{Problem}
-	%The Computer Science Education community has an established interest in skills \cite{bayliss:csgames}.
+    
+    RPG combat mechanics - attributes (primary vs. secondary)
 	
 \section{Approach}
 
@@ -54,36 +55,44 @@ Blah blah blah abstract goes here.
 \section{Implementation}
 
     \subsection{Genetic Algorithm}
+        
+        General description of a fitness function
+    
+    \subsection{Fitness Function}
+    
+        \subsubsection{Simulation}
+            
+            Tried several approaches:
+            \begin{itemize}
+                \item Move usage**
+                \item Battle victory**
+                \item Battle length
+                \item Linearity
+            \end{itemize}
 
     \subsection{Function Tree}
 
         \subsubsection{Mutation Algorithm}
+        
+            \paragraph{Mutating entire tree}
+            
+            \paragraph{Mutating leaf nodes}
+        
         \subsubsection{Cross-over Algorithm}
+        
+            \paragraph{Uniform cross-over}
 
 %    Mixed-children variant - http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
-    Weighted-delay cross-over variant - Potentially novel
-    Mixed-children weighted-delay cross-over
+%    Weighted-delay cross-over variant - Potentially novel
+%    Mixed-children weighted-delay cross-over
 
     \subsection{Function Vector}
+        
+        Modeled as vector of coeffecients
     
         \subsubsection{Mutation Algorithm}
+        
         \subsubsection{Cross-over Algorithm}
-
-    \subsection{Simulation}
-    
-    describe the algorithm
-
-    \subsection{Fitness Function}
-    
-    Tried several approaches:
-    \begin{itemize}
-        \item Move usage**
-        \item Battle victory**
-        \item Battle length
-        \item Linearity
-    \end{itemize}
-    
-    
 
     \subsection{Players}
 
@@ -93,34 +102,35 @@ Blah blah blah abstract goes here.
     
         \subsubsection{Random Player}
 
-        \subsubsection{Utility calculation}
+        \subsubsection{Player Utility calculation}
         
-            Primaries vs. Primaries + Secondaries
+           % Primaries vs. Primaries + Secondaries
             
-\section{Validation}
+\section{Experiments}
 
-    \subsection{Function Tree}
-    
-        \subsubsection{Levenshtein Edit Distance}
-        
+    \subsection{Validation of Genetic Operators}
+        \subsubsection{Function Tree}
             \paragraph{Mutation}
-            
-            Original attempt was to simply randomly change nodes in the tree.
-            
+                \subparagraph{Levenshtein Edit Distance}
+                \subparagraph{Numerical Analysis}        
             \paragraph{Cross-over}
-            
-        \subsubsection{Numerical Analysis}
-        
+        \subsubsection{Function Vector}
             \paragraph{Mutation}
             \paragraph{Cross-over}
-            
-\section{Results}
     
-    \subsection{Parameters}
+    \subsection{Move Generation Experiments}
+    
+        \subsubsection{Tree vs. Vector}
+        \subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
+        \subsubsection{Attribute Type Frequencies}
+    
+    \subsection{Validation of Moves}
+        
+        Ran simulations of Minimax/Greedy/Random to determine whether Minimax dominated.
 
 \section{Conclusion}
 
-	We need to do work!
+	%We need to do work!
     
 \section{Future Work}
 

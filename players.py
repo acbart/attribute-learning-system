@@ -76,9 +76,13 @@ class MinimaxPlayer(Player):
     move at a limited depth.
     """
     __name__ = "Minimax Player"
+    def __init__(self, moves, level = 4):
+        self.level = level
+        Player.__init__(self, moves)
+        
     def get_move(self, battle_state):
         battle = MinimaxGame(self.moves, self.opponent, battle_state.turn)
-        move = minimax_decision(battle_state, battle, d= 4)
+        move = minimax_decision(battle_state, battle, d= self.level)
         return move
 
 class GreedyPlayer(Player):
