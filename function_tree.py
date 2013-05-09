@@ -81,10 +81,10 @@ class FunctionTree(object):
         return len(self.root)
 
     def __str__(self):
-        return str(self.root)
+        return self.feature + "=" + str(self.root)
 
     def short_string(self):
-        return self.root.short_string()
+        return self.feature + "="+ self.root.short_string()
 
     def __hash__(self):
         return hash(self.short_string())

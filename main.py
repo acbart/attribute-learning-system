@@ -7,15 +7,15 @@ if __name__ == "__main__":
 
     # Get Command Line Arguments
     parser = argparse.ArgumentParser(description='Setup configuration for the Attribute Learning System')
-    parser.add_argument('-player1', "--player1", type=str, help="Player 1's type", default='minimax')
-    parser.add_argument('-player2', "--player2", type=str, help="Player 2's type", default='minimax')
-    parser.add_argument('-function_type', "--function_type", type=str, help='type of function for learning', default='vector')
-    parser.add_argument('-primary_attributes', "--primary_attributes", type=int, help='number of primary attributes per player', default=1)
-    parser.add_argument('-secondary_attributes', "--secondary_attributes", type=int, help='number of secondary attributes per player', default=2)
-    parser.add_argument('-retain_percent', "--retain_percent", type=float, help='percentage of population to retain, given as a decimal', default=CONFIG['retain_percent'])
-    parser.add_argument('-mutation_rate', "--mutation_rate", type=float, help='percentage of population to mutate, given as a decimal', default=CONFIG['mutation_rate'])
-    parser.add_argument('-radiation_amount', "--radiation_amount", type=int, help='level of mutation undergone during mutate phase', default=CONFIG['radiation_amount'])
-    parser.add_argument('-name', '--name', type=str, help="The name of the resulting .data file", default="untitled")
+    parser.add_argument('-p1', "--player1", type=str, help="Player 1's type", default='minimax')
+    parser.add_argument('-p2', "--player2", type=str, help="Player 2's type", default='minimax')
+    parser.add_argument('-f', "--function_type", type=str, help='type of function for learning', default='vector')
+    parser.add_argument('-ap', "--primary_attributes", type=int, help='number of primary attributes per player', default=1)
+    parser.add_argument('-as', "--secondary_attributes", type=int, help='number of secondary attributes per player', default=2)
+    parser.add_argument('-re', "--retain_percent", type=float, help='percentage of population to retain, given as a decimal', default=CONFIG['retain_percent'])
+    parser.add_argument('-mu', "--mutation_rate", type=float, help='percentage of population to mutate, given as a decimal', default=CONFIG['mutation_rate'])
+    parser.add_argument('-ra', "--radiation_amount", type=int, help='level of mutation undergone during mutate phase', default=CONFIG['radiation_amount'])
+    parser.add_argument('-n', '--name', type=str, help="The name of the resulting .data file", default="untitled")
 
     # Put CL args into the config dict
     CONFIG.update(vars(parser.parse_args()))
@@ -71,6 +71,9 @@ if __name__ == "__main__":
                           CONFIG['mutation_rate'],
                           CONFIG['radiation_amount'])
 
-    for index, move in enumerate(best_result):
-        print "Move", 1+index
-        print "\t",move.feature, "=", move
+    from movelist_validation import test_movelist
+    test_movelist(best_result)
+    # for index, move in enumerate(best_result):
+        # print "Move", 1+index
+        # print "\t",move.feature, "=", move
+        
