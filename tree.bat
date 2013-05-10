@@ -1,4 +1,3 @@
-
 python main.py -f vector -ap 1 -as 1 -n vector-attributes-p1s1
 python main.py -f vector -ap 1 -as 2 -n vector-attributes-p1s2
 python main.py -f vector -ap 1 -as 3 -n vector-attributes-p1s3

@@ -1,0 +1,4 @@
+Name | Player 1 Type | Player 2 Type | Function Type | Primary Attributes | Secondary Attributes | Parents Retained | Mutation Rate
+tree-gen-0-2 | MinimaxPlayer | MinimaxPlayer | FunctionTree | 1 | 2 | 0.0 | 0.2
+
+Iteration | Time Taken | Maximum Utility | Average Utility | Stddev of Utility | Battle ID | MoveList
