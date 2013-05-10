@@ -8,7 +8,7 @@ import os, sys
 
 data = {}
 for file in os.listdir("."):
-    if file.endswith('.data'):
+    if file.startswith('results') and file.endswith('.data'):
         f = csv.reader(open(file, 'rb'), delimiter='|')
         lines = [row for row in f]
         fname = file.replace('.data', '')

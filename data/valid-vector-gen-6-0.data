@@ -1,0 +1,23 @@
+Player 1 is random
+-1, 1.000000, Counter({1: 288, 0: 112})
+0, 1.000000, Counter({1: 399, 0: 1})
+3, 1.000000, Counter({1: 396, 0: 4})
+6, 1.000000, Counter({1: 400})
+
+Player 2 is random
+-1, 0.322500, Counter({1: 271, 0: 129})
+0, 0.680000, Counter({0: 272, 1: 128})
+3, 0.705000, Counter({0: 282, 1: 118})
+6, 0.620000, Counter({0: 248, 1: 152})
+
+P1 Intelligence, P2 Intelligence, Correct
+0, 0, 1
+0, 3, 0
+0, 6, 0
+3, 0, 0
+3, 3, 1
+3, 6, 0
+6, 0, 0
+6, 3, 1
+6, 6, 1
+Final Result: 4
