@@ -1,17 +1,17 @@
 import random
 random.seed(13)
+import sys
+import math
 import itertools
 import time
-from function_tree import FunctionTree
-from function_vector import FunctionVector
-from battle_state import BattleState
 import numpy as np
 import scipy
 import scipy.stats.stats as sp
-from config import ATTRIBUTES
 from zss.compare import distance
-import sys
-import math
+from config import CONFIG
+from function_tree import FunctionTree
+from function_vector import FunctionVector
+from battle_state import BattleState
 
 class State(dict):
     def get_value(self, feature):
@@ -28,10 +28,10 @@ class State(dict):
 # sys.exit()
    
 if __name__ == "__main__":
-    log = open("validation.log", "w")
-    distance_to_numerical_log = open("dtn.csv", "w")
-    TRIALS = 30
-    check = "mutation_numerical"
+    #log = open("validation.log", "w")
+    #distance_to_numerical_log = open("dtn.csv", "w")
+    TRIALS = 1000
+    check = "mutation"
     
     prior_time = time.time()
     if check == "cross_over":
@@ -95,17 +95,23 @@ if __name__ == "__main__":
                 prior_time = time.time()
                 mut_log.write("%d, %f, %f\n" % (radiation, res[0], res[1]))
     elif check == "mutation":
-        for radiation in xrange(1, 20):
+        distance_to_numerical_log = open("mutation_vs_edit_distance.csv", "w")
+        for radiation in xrange(1, 256):
             print "Radiation", radiation
             distance_to_numerical_log.write(str(radiation))
-            trial_distances = np.zeros(TRIALS, dtype=np.float64)
+            trial_distances1 = np.zeros(TRIALS, dtype=np.float64)
+            trial_distances2 = np.zeros(TRIALS, dtype=np.float64)
             for trial in xrange(TRIALS):
                 original = FunctionTree()
                 mutant = original.copy()
+                mutant_et = original.copy()
+                for x in xrange(radiation): mutant_et = mutant_et.entire_tree_mutate()
                 for x in xrange(radiation): mutant = mutant.mutate()
-                d = distance(original, mutant)
-                trial_distances[trial] = d
-                print "\t", trial, "("+ str(time.time() - prior_time) + ")", radiation, d
+                d1 = distance(original, mutant)
+                d2 = distance(original, mutant_et)
+                trial_distances1[trial] = d1
+                trial_distances2[trial] = d2
+                #print "\t", trial, "("+ str(time.time() - prior_time) + ")", radiation, d
                 prior_time = time.time()
                
-            distance_to_numerical_log.write(", %f, %f\n" % (np.mean(trial_distances), np.std(trial_distances)))
+            distance_to_numerical_log.write(", %f, %f, %f, %f\n" % (np.mean(trial_distances1), np.std(trial_distances1), np.mean(trial_distances2), np.std(trial_distances2)))

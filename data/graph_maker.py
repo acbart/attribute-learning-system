@@ -7,23 +7,30 @@ import csv
 import os, sys
 
 data = {}
-for file in os.listdir("."):
-    if file.startswith('results') and file.endswith('.data'):
+fig = None
+prior = None
+for file in sorted(os.listdir(".")):
+    if file.startswith('results-tree-gen-') and file.endswith('.data'):
+        fname = file.replace('.data', '')
+        print fname
+        re, mu = int(fname[17]), int(fname[19])
         f = csv.reader(open(file, 'rb'), delimiter='|')
         lines = [row for row in f]
-        fname = file.replace('.data', '')
         if len(lines) < 5:
             print "Error:", file
             continue
         data = lines[4:]
         iterations = [line[0] for line in data]
         utilities = [line[2] for line in data]
-        fig = pyplot.figure()
+        if prior != re:
+            fig = pyplot.figure()
+            pyplot.title( 'Highest Utility per Iteration (Re: %d)' % (re,) )
         pyplot.plot( iterations, utilities, '-' )
-        pyplot.title( 'Highest Utility per Iteration (%s)' % (fname,) )
-        pyplot.xlabel( 'Iteration' )
-        pyplot.ylabel( 'Utility' )
-        pyplot.savefig( fname + '.png' )
+        if prior != re:
+            pyplot.xlabel( 'Iteration' )
+            pyplot.ylabel( 'Utility' )
+            pyplot.savefig( 'graph-' + str(re) + '.png' )
+            prior = re
         #pyplot.show()
 #print data
 sys.exit()

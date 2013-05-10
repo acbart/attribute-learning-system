@@ -53,6 +53,11 @@ class FunctionTree(object):
         mutant_node_index = random.choice(leaf_node_indexes)
         new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, CONFIG['height_max'])
         return FunctionTree(new_root)
+        
+    def entire_tree_mutate(self):
+        mutant_node_index = random.randint(0, len(self.root)-1)
+        new_root, length_traversed = self.root.mutate_index(0, mutant_node_index, CONFIG['height_max'])
+        return FunctionTree(new_root)
 
     def cross_over(self, other):
         """

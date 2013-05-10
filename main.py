@@ -1,6 +1,6 @@
 import random
 #random.seed(33)
-from config import CONFIG
+from config import CONFIG, update_attributes
 import argparse
 
 if __name__ == "__main__":
@@ -20,33 +20,7 @@ if __name__ == "__main__":
     # Put CL args into the config dict
     CONFIG.update(vars(parser.parse_args()))
 
-    # Update the attributes
-    ATTRIBUTE_TYPES = {"primary": CONFIG['primary_attributes'], "secondary": CONFIG['secondary_attributes']}
-    ATTRIBUTES = []
-    for person in ["self", "other"]:
-        for attribute_type, occurrence in ATTRIBUTE_TYPES.items():
-            for i in xrange(1, 1+occurrence):
-                ATTRIBUTES.append( "_".join((person, attribute_type, str(i))) )
-    ATTRIBUTES = tuple(ATTRIBUTES)
-    PRIMARIES = [str(i) for i in range(1, 1+ATTRIBUTE_TYPES["primary"])]
-    SECONDARIES = [str(i) for i in range(1, 1+ATTRIBUTE_TYPES["secondary"])]
-    ATTRIBUTE_AFFECTS = {}
-    for index in PRIMARIES:
-        ATTRIBUTE_AFFECTS["self_primary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES])
-        ATTRIBUTE_AFFECTS["other_primary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
-                                                         ["other_secondary_"+i for i in SECONDARIES])
-    for index in SECONDARIES:
-        ATTRIBUTE_AFFECTS["self_secondary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
-                                                           ["self_primary_"+i for i in PRIMARIES])
-        ATTRIBUTE_AFFECTS["other_secondary_"+index] = tuple(["self_secondary_"+i for i in SECONDARIES]+
-                                                         ["other_secondary_"+i for i in SECONDARIES]+
-                                                         ["self_primary_"+i for i in PRIMARIES]+
-                                                         ["other_primary_"+i for i in PRIMARIES])
-    CONFIG['attribute_types'] = ATTRIBUTE_TYPES
-    CONFIG['attributes'] = ATTRIBUTES
-    CONFIG['primaries'] = PRIMARIES
-    CONFIG['secondaries'] = SECONDARIES
-    CONFIG['attribute_affects'] = ATTRIBUTE_AFFECTS
+    update_attributes()
 
     # Update the Function Type
     if CONFIG['function_type'] == "vector":

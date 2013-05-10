@@ -43,101 +43,117 @@ Having a good set of moves for players to choose from in role-playing games (RPG
 \keywords{Genetic, Programming, Game, Development} % NOT required for Proceedings
 
 \section{Problem}
-    
-    RPG combat mechanics - attributes (primary vs. secondary)
-	
+RPG combat mechanics - attributes (primary vs. secondary)
+
+Need to define
+moves
+movelist
+attributes
+primary
+secondary
+
+balancing moves - naive strategies and poor gameplay as a result of move options
+time consuming - creating moves properly takes time and testing
+large space - huge number of ways to calculate and create moves
+talk about some games where the moves were not ideal
+mention lack of literature on this specific topic?
+
 \section{Approach}
 
-    \subsection{Prior Work}
+\subsection{Prior Work}
 
-    \subsection{Target Audience}
+Dynamic Difficulty Adjustment
 
-\section{Implementation}
+\subsection{Target Audience}
 
-    \subsection{Genetic Algorithm}
-        
-        General description of a fitness function
-    
-    \subsection{Fitness Function}
-    
-        \subsubsection{Simulation}
-            
-            Tried several approaches:
-            \begin{itemize}
-                \item Move usage**
-                \item Battle victory**
-                \item Battle length
-                \item Linearity
-            \end{itemize}
+Game developers, 
 
-    \subsection{Function Tree}
+\subsection{Approach}
 
-        \subsubsection{Mutation Algorithm}
-        
-            \paragraph{Mutating entire tree}
-            
-            \paragraph{Mutating leaf nodes}
-        
-        \subsubsection{Cross-over Algorithm}
-        
-            \paragraph{Uniform cross-over}
+Because the state space is extremely large with many local maxima, we used a genetic algorithm. A genetic algorithm mimics the natural process of evolution by repeatedly manipulating a population of \textit{phenotypes}. These phenotypes are composed of mutable properties called \textit{genes}. Each new iteration of a population is called a \textit{generation}. A phenotype can be changed via mutation - where properties are changed at random - and via cross-over - where properties are combined with the properties of another phenotype. A \textit{fitness function} maps the phenotypes to a real number that indicates that phenotype’s value. 
+We performed a number of experiments with our genetic algorithm in order to develop balanced moves. In particular, we investigated the effect that varying parameters had on our rate of utility growth and maximal utility achieved. As we gathered data, we did additional experiments to evaluate the validity of the results achieved.
 
-%    Mixed-children variant - http://ieeexplore.ieee.org.ezproxy.lib.vt.edu:8080/stamp/stamp.jsp?tp=&arnumber=6256587
-%    Weighted-delay cross-over variant - Potentially novel
-%    Mixed-children weighted-delay cross-over
+\section{Implementation of the Genetic Algorithm}
 
-    \subsection{Function Vector}
-        
-        Modeled as vector of coeffecients
-    
-        \subsubsection{Mutation Algorithm}
-        
-        \subsubsection{Cross-over Algorithm}
+In our system, the phenotype is a Movelist, a union of two sets of moves (one set for each player). A move is abstractly defined as a function that maps a set of input attributes to a single output attribute. While designing our system, we explored two different implementations of moves. Additionally, we experimented with a number of fitness functions. 
 
-    \subsection{Players}
+\subsection{Fitness Function}
 
-        \subsubsection{Minimax Player}
-    
-        \subsubsection{Greedy Player}
-    
-        \subsubsection{Random Player}
+We based our fitness function on the results of battle simulations between two players.  The two player types used were based on Minimax algorithms with a depth limit of four. Each player was given a moveset from which to select in their action state. The utility of the selected moves in the Minimax algorithm were based on maximizing the primary attributes of each player.
+Once a single battle simulation completes, we use various statistics from the simulation to calculate the fitness. A number of approaches were taken in determining the overall fitness for a set of moves:
 
-        \subsubsection{Player Utility calculation}
-        
-           % Primaries vs. Primaries + Secondaries
-            
+\begin{description}
+    \item[Move Usage] In an ideally balanced game, all moves should be used approximately equally. Over the course of a battle, we keep track of all the moves used as a ratio of the total moves used. Then, the standard deviation of these percentages is calculated. A well balanced game - where moves are used evenly - has a low standard deviation, but an unbalanced game will have a high deviation.
+    \item[Battle Victory] In a typical game, there should be final victory or outcome between the players. This metric awarded a positive utility for battles that involved a victor and a negative reward for battles that ended in a stalemate.
+    \item[Battle length] We believed that a good game should last with in a certain range of turns. This way the battles are neither too short (where one player has an overt advantage) or too long (where neither player is able to gain an advantage). 
+    \item[Linearity] In order for a battle to progress smoothly in an ideal battle, each player should show a steady decrease in primary attributes, rather than a sudden loss at a single point in the battle. This function looked at the progression of player statistics and gave a high utility for battles where both the players’ progress was a steady decrease in attributes, and a negative utility for sudden or extreme changes in the player attributes.
+\end{description}
+
+Preliminary testing revealed the most success with a fitness function based on Move Usage and Battle Victory. After analyzing the results from the Linearity metric, we determined that this led to battles where the secondary attributes were underrepresented, which was antithesis to our goals. Since we desired consistency in our utility function across all results, during our experiments we did not include Battle Length and Linearity in our calculations.
+
+\subsection{Move}
+
+As previously mentioned, a Move is used to 
+
+\subsection{Function Tree}
+
+We first attempted to represent moves as Abstract Syntax Trees of operators over attributes. \ref{example function tree} gives an example of a Function Tree with a binary operator (addition), unary operator (doubling), and two nullary operators (attributes). In order to unify our representation, we treated attributes as nullary operators that simply returned the value.
+
+\subsubsection{Mutation Algorithm}
+
+\paragraph{Mutating entire tree}
+
+\paragraph{Mutating leaf nodes}
+
+Preliminary tests of the Entire-Tree Mutation approach indicated that 
+
+\subsubsection{Cross-over Algorithm}
+
+\paragraph{Uniform cross-over}
+
+
+\subsection{Function Vector}
+
+The function vectors were modeled as vectors of coefficients. In this model, each attribute was assigned a coefficient associated to it. In addition, the vector had a constant that could be used for additional adjustments to the vector equation. Due to the fundamental difference between the vector and tree scheme a different approach was taken for the mutation and cross-over algorithms. 
+
+\subsubsection{Mutation Algorithm}
+The mutation of the vector functions was performed using a randomly generated coefficient within a specified range. This allowed for manipulation of the vectors in a significantly reduced space. This was verified in a [KS-test] validation, which showed that the mutations acting upon the vectors had a subtle influence.
+
+\subsubsection{Cross-over Algorithm}
+The cross-over algorithm of the vector functions utilized the coefficients to find an average between coefficients of similar attribute effectors within the vector equations. Testing showed this to be significantly effective in producing new moves with high utility.
+
 \section{Experiments}
 
-    \subsection{Validation of Genetic Operators}
-        % Not sure I like how this is structured
-        \subsubsection{Function Tree}
-            \paragraph{Mutation}
-                Levenshtein Edit Distance and Numerical Analysis
-            \paragraph{Cross-over}
-                Levenshtein Edit Distance and Numerical Analysis
-        \subsubsection{Function Vector}
-            \paragraph{Mutation}
-                Levenshtein Edit Distance and Numerical Analysis
-            \paragraph{Cross-over}
-                Levenshtein Edit Distance and Numerical Analysis
-    
-    \subsection{Move Generation Experiments}
-    
-        \subsubsection{Tree vs. Vector}
-        \subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
-        \subsubsection{Attribute Type Frequencies}
-    
-    \subsection{Validation of Moves}
-        
-        Ran simulations of Minimax/Greedy/Random to determine whether Minimax dominated.
+\subsection{Validation of Genetic Operators}
+% Not sure I like how this is structured
+\subsubsection{Function Tree}
+\paragraph{Mutation}
+Levenshtein Edit Distance and Numerical Analysis
+\paragraph{Cross-over}
+Levenshtein Edit Distance and Numerical Analysis
+\subsubsection{Function Vector}
+\paragraph{Mutation}
+Levenshtein Edit Distance and Numerical Analysis
+\paragraph{Cross-over}
+Levenshtein Edit Distance and Numerical Analysis
+
+\subsection{Move Generation Experiments}
+
+\subsubsection{Tree vs. Vector}
+\subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
+\subsubsection{Attribute Type Frequencies}
+
+\subsection{Validation of Moves}
+
+Ran simulations of Minimax/Random to determine whether Minimax dominated.
 
 \section{Conclusion}
 
-	%We need to do work!
-    
+%We need to do work!
+
 \section{Future Work}
 
-    \subsection{Genetic Operators}
+\subsection{Genetic Operators}
 
 
 %
