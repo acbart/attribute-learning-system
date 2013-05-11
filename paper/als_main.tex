@@ -75,7 +75,7 @@ We performed a number of experiments with our genetic algorithm in order to deve
 
 \section{Implementation of the Genetic Algorithm}
 
-In our system, the phenotype is a Movelist, a union of two sets of moves (one set for each player). A move is abstractly defined as a function that maps a set of input attributes to a single output attribute. While designing our system, we explored two different implementations of moves. Additionally, we experimented with a number of fitness functions. 
+In our system, the phenotype is a Movelist, a union of two sets of moves (one set for each player). A move is abstractly defined as a function that maps a set of input attributes to a single output attribute. While designing our system, we explored two different implementations of moves. Additionally, we experimented with a number of fitness functions.
 
 \subsection{Fitness Function}
 
@@ -93,67 +93,65 @@ Preliminary testing revealed the most success with a fitness function based on M
 
 \subsection{Move}
 
-As previously mentioned, a Move is used to 
+As previously mentioned, our system defines a Move as an abstract function to map one state of the battle to the next. A state in the battle can be seen as a vector of the two players’ attributes, demonstrated in \ref{example move transformation}. 
 
 \subsection{Function Tree}
 
-We first attempted to represent moves as Abstract Syntax Trees of operators over attributes. \ref{example function tree} gives an example of a Function Tree with a binary operator (addition), unary operator (doubling), and two nullary operators (attributes). In order to unify our representation, we treated attributes as nullary operators that simply returned the value.
+We first attempted to represent moves as Abstract Syntax Trees of operators over attributes. Every node in the AST is an \textit{operator}, with zero-arity operators (which yield attributes from the input vector, unmodified) being terminal nodes. Early experiments with \textit{ephemeral nodes} - coded as zero-arity operators that returned a constant value, as opposed to an attribute - led to their inclusion. \ref{example function tree} gives an example of a Function Tree with a binary operator (addition), unary operator (doubling), and two nullary operators (an attribute and an ephemeral constant).
 
 \subsubsection{Mutation Algorithm}
 
-\paragraph{Mutating entire tree}
-
-\paragraph{Mutating leaf nodes}
-
-Preliminary tests of the Entire-Tree Mutation approach indicated that 
-
-\subsubsection{Cross-over Algorithm}
-
-\paragraph{Uniform cross-over}
-
-
-\subsection{Function Vector}
-
-The function vectors were modeled as vectors of coefficients. In this model, each attribute was assigned a coefficient associated to it. In addition, the vector had a constant that could be used for additional adjustments to the vector equation. Due to the fundamental difference between the vector and tree scheme a different approach was taken for the mutation and cross-over algorithms. 
-
-\subsubsection{Mutation Algorithm}
-The mutation of the vector functions was performed using a randomly generated coefficient within a specified range. This allowed for manipulation of the vectors in a significantly reduced space. This was verified in a [KS-test] validation, which showed that the mutations acting upon the vectors had a subtle influence.
-
-\subsubsection{Cross-over Algorithm}
-The cross-over algorithm of the vector functions utilized the coefficients to find an average between coefficients of similar attribute effectors within the vector equations. Testing showed this to be significantly effective in producing new moves with high utility.
-
-\section{Experiments}
-
-\subsection{Validation of Genetic Operators}
-% Not sure I like how this is structured
-\subsubsection{Function Tree}
-\paragraph{Mutation}
-Levenshtein Edit Distance and Numerical Analysis
-\paragraph{Cross-over}
-Levenshtein Edit Distance and Numerical Analysis
-\subsubsection{Function Vector}
-\paragraph{Mutation}
-Levenshtein Edit Distance and Numerical Analysis
-\paragraph{Cross-over}
-Levenshtein Edit Distance and Numerical Analysis
-
-\subsection{Move Generation Experiments}
-
-\subsubsection{Tree vs. Vector}
-\subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
-\subsubsection{Attribute Type Frequencies}
-
-\subsection{Validation of Moves}
-
-Ran simulations of Minimax/Random to determine whether Minimax dominated.
-
-\section{Conclusion}
-
-%We need to do work!
-
-\section{Future Work}
-
-\subsection{Genetic Operators}
+There are many well-known methods for mutating an AST, so we chose to implement an interesting subset of them. 
+\begin{description}
+    \item[Subtree Mutation] A subtree is selected, and is given a new parent. This new, taller subtree replaces the original, increasing the depth of the tree.\cite{geneticprogramming.us}
+    \item[Node Replacement Mutation] A node is selected and replaced
+\end{description}
+    Preliminary tests of the mutation algorithms revealed that they had an undesirably dramatic effect on the structure of the Function Tree. \ref{Entire Tree Mutation Amount vs. Edit Distance} demonstrates how repeatedly mutating the entire tree has almost random impact on the Levenshtein Edit Distance between the mutant and the original. In order to keep mutational changes to a minimum, we refactored the algorithms to only affect terminal and pre-terminal nodes. The result of this change is demonstrated in \ref{Terminal Mutation Amount vs. Edit Distance}, which shows a logarithmic relationship between the number of times a tree is mutated and the Edit Distance from its parent.
+    
+    \subsubsection{Cross-over Algorithm}
+    
+    
+    
+    \subsubsection{Validation of Trees}
+    
+    
+    \subsection{Function Vector}
+    
+    The function vectors were modeled as vectors of coefficients. In this model, each attribute was assigned a coefficient. In addition, the vector had a constant that could be used for additional adjustments to the vector equation. Due to the fundamental difference between the vector and tree scheme a different approach was taken for the mutation and cross-over algorithms. 
+    
+    \subsubsection{Mutation Algorithm}
+    The mutation of the vector functions was performed using a randomly generated coefficient within a specified range. This allowed for manipulation of the vectors in a significantly reduced space. This was verified in a [KS-test] validation, which showed that the mutations acting upon the vectors had a subtle influence.
+    
+    \subsubsection{Cross-over Algorithm}
+    The cross-over algorithm of the vector functions utilized the coefficients to find an average between coefficients of similar attribute effectors within the vector equations. Testing showed this to be significantly effective in producing new moves with high utility.
+    
+    \subsubsection{Validation of Vectors}
+    To validate the vector mutation function we used the Kolmogorov-Smirnov (K-S)  test to look at the difference in changes made by mutation. The results of the K-S test showed only a marginal amount of change (R2=0.14), which was expected given the limitation imposed on the range of possible coefficients allowed.
+    Validation of the cross-over function for vectors was done through comparison and analysis of initial battle simulations and iterations. Looking at the utility results when running initial tests showed a correlation between a high cross-over rate and improved utility.
+    
+    
+    \section{Experiments}
+    
+    \subsection{Move Generation Experiments}
+    
+    \subsubsection{Tree vs. Vector}
+    \subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
+    \subsubsection{Attribute Type Frequencies}
+    
+    \subsection{Validation of Moves}
+    Ran simulations of Minimax/Random to determine whether Minimax dominated.
+    To look at the effectiveness of the moves generated by our solution, we chose validate the movesets by using a strategic and nonstrategic player to simulate a battle with the moves. If the moves produced are viable, then the expected outcome of this testing should show that a strategic Minimax player should outperform and defeat a player who uses moves at random.
+    The results of this 
+    
+    \section{Conclusion}
+    
+    %We need to do work!
+    
+    \section{Future Work}
+    
+    \subsection{Genetic Operators}
+    
+    
 
 
 %
