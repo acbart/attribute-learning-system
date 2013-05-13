@@ -218,60 +218,65 @@ Function Trees suffer from a lack of fine-grained state exploration. A single mu
     Validation of the cross-over function for vectors was done through preliminary comparison and analysis of initial battle simulations and iterations. Looking at the utility results when running initial tests showed a correlation between a high cross-over rate and improved utility. These results are demonstrated more explicitly in the next section.
     
     \section{Experiments}
-
-\begin{figure*}[ht!]
-\centering
-\includegraphics[width=\textwidth,height=90mm,keepaspectratio]{./images/gen-mureco-comparison.png}
-\caption{Maximal Utility over Iterations for Varying Retention, Mutation, and Cross-over Rates}
-\label{utility_experiments}
-\end{figure*}
     
     \subsection{Move Generation Experiments}
 
-In order to collect data on the effectiveness of the system and validate the moves, 25 iterations were run over a variety of conditions. The base conditions of the algorithm were set as follows, unless manipulated for the purpose of a particular experiment: a constant population of 500 movesets, both players were Minimax players with a look-ahead depth of four, mutation was set to 50%, cross-over was set to 20%, the parent retention was set to 30%, and the attributes frequency was set to one primary and two secondaries.    
+In order to collect data on the effectiveness of the system and validate the moves, 25 iterations of our Genetic Algorithm were run over a variety of conditions. The base conditions of the algorithm were set as follows, unless manipulated for the purpose of a particular experiment: 
+\begin{itemize}
+    \item A constant population of 500 movelists
+    \item $50\%$ of the new generation would be mutants
+    \item $20\%$ of the new generation would be children of crossed-over parents
+    \item $30\%$ of the new generation would be top performers from the previous generation
+    \item A combat state would have one primary and two secondary attributes.
+\end{itemize}
 
     \subsubsection{Tree vs. Vector}
 
-Both the tree and vector implementations were tested evenly in the experiments under the various conditions. The results of the highest utilities of each type of implementation across the iterations can be seen in the graph. The vector implementation significantly outperformed the tree implementation across nearly every experiment, with the highest tree utility failing to break a value of 825-utility, whereas the vector implementation reached a 1000-utility score multiple times across various experiments. 
+Both the tree and vector implementations were tested identically in the experiments under the various conditions. The results of the highest utilities of each type of implementation across the iterations were then plotted and analyzed. The vector implementation significantly outperformed the tree implementation across nearly every experiment, with the highest tree utility failing to break a value of 825-utility, whereas the vector implementation reached a 1000-utility score multiple times across various experiments. 
 
     \subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
 
-To see the effects of various conditions on the genetic algorithm, these variables were manipulated in multiple experiments, and the effects of these changes can be seen in the utility over iteration graphs. The results show that for the tree implementation, an equal 20% retention and cross-over rate, with a 40% mutation rate yielded the best results. For the vector implementation, experiments with a high percentage allocated to the mutation and cross-over conditions showed the greatest utility output. The most effective of the conditions was when the mutation and cross-over were equal, with the condition set to 20% retention, 40% mutation and 40% cross-over. This showed a high starting utility and had a moveset with a utility of 1000 after the first iteration.
+To see the effects of various conditions on the genetic algorithm, these variables were manipulated in multiple experiments, and the effects of these changes can be seen in Figure \ref{utility_experiments}. The results show that for the tree implementation, an equal $20\%$ retention and cross-over rate, with a $40\%$ mutation rate yielded the best results. For the vector implementation, experiments with a high percentage allocated to the mutation and cross-over conditions showed the greatest utility output. The most effective of the conditions was when the mutation and cross-over were equal, with the condition set to $20\%$ retention, $40\%$ mutation and $40\%$ cross-over. This showed a high starting utility and had a moveset with a utility of 1000 after the first iteration.
+
+
+\begin{figure*}[Ht]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{./images/gen-mureco-comparison.png}
+    \caption{Maximal Utility over Iterations for Varying Retention, Mutation, and Cross-over Rates}
+    \label{utility_experiments}
+\end{figure*}
 
     \subsubsection{Attribute Type Frequencies}
 
-\begin{figure*}[ht!]
-\centering
-\includegraphics[width=\textwidth,height=90mm,keepaspectratio]{./images/attr_frquency_comparison.png}
-\caption{Maximal Utility over Iterations for Varying Quantities of Attributes}
-\label{attribute_frequency_experiments}
-\end{figure*}
+In these tests, we wanted to look at what effect the number of primary and secondary attributes has on the growth of the utility of movelists. Attribute type quantities were tested with combinations of 1 to 2 primary attributes and 1 to 3 secondary attributes. Results of these tests can be seen Figure \ref{attribute_frequency_experiments}. For the Tree implementation, the tests have little effect on the utility outcomes, consistently averaging around 750. The results of the Vector tests indicate a stronger impact - tests conducted with a single primary attribute were yielded a higher maximum utility, with a 1000 utility reached in the tests with a single primary attribute, and both two and three secondary attributes. This testing validated the use of the default single primary attribute with two secondary attributes that was used for the attribute type quantities in the other experiments.
 
-In these tests, we wanted to look at what effect the number of primary and secondary attributes may have on the overall utility of movesets. To this, attribute type frequencies were tested with combinations of 1 to 2 primary attributes and 1 to 3 secondary attributes. Results of these tests can be seen in the given graphs [graph reference]. For the tree implementation, the tests vary little effect on the outcome utilities, with the average consistently ranging in the 750 utility range. The results of the vector tests showed a greater effect of attribute frequency on the utility. The utility of tests conducted with a single primary attribute were yielded a higher maximum utility, with a 1000 utility reached in the tests with a single primary attribute, and either two or three secondary attributes. This testing validated the use of the default single primary attribute with two secondary attributes that was used for the attribute type frequencies in the other experiments.
+\begin{figure*}[Ht]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{./images/attr_frquency_comparison.png}
+    \caption{Maximal Utility over Iterations for Varying Quantities of Attributes}
+    \label{attribute_frequency_experiments}
+\end{figure*}
     
     \subsection{Validation of Moves}
 
-To look at the effectiveness of the moves generated by our solution, we chose to validate the movesets by using a strategic Minimax player, and a nonstrategic (random) or lower level Minimax player to simulate a battle with the moves. If the moves produced were viable, then the expected outcome of this testing would show that a strategic player would outperform and defeat a random or lower level player.
-The results of this testing did not show what was expected. In many battle simulations the lower level Minimax was able to defeat the higher level Minimax player, and in some cases the random player was able to defeat the Minimax player. After looking at the movesets on a case by case basis, it was found that the test results which did not follow the prediction was due to an issue in the way moves that affected the primary status of the opponent had been formed. In these cases. the losing player often had no move that would be able to reduce a primary attribute of the other player in order to win.
+To look at the effectiveness of some of the 1000-utility moves generated by our solution, we chose to validate the movesets by using a strategic Minimax player, and a nonstrategic (random) or lower level Minimax player to simulate a battle with the moves. If the moves produced were viable, then the expected outcome of this testing would show that a strategic player would outperform and defeat a random or lower level player.
+
+The results of this testing were unexpectedly negative. In many battle simulations that we analyzed, the lower level Minimax was able to defeat the higher level Minimax player, and in some cases the random player was able to defeat the Minimax player. After looking at the movesets on a case by case basis, it was found that the test results which did not follow the prediction were largely due to an issue in the way moves that affected the primary status of the opponent had been formed. In these cases the losing player often had no move that would be able to reduce a primary attribute of the other player in order to win.
     
     \section{Conclusion}
-
-The overall results of our move validation experiments showed that the movesets were not applicable in a true RPG setting. The poor results of the validation is most likely due to the utility function that determines the value of the movesets not properly taking into account an equal chance for each player to win the match through strategy.  It became apparent that the utility function used for the movesets did not take into account a practical usage of the moves to defeat the opponent in all circumstances. The failure to take this feature of battles into account meant that though the move usage was strategic and distributed evenly, and there was a victor associated, it provided no opportunity for the player with the moveset that lacked a strong primary reducing move to win the battle. This makes the movesets generated by the system unusable in a practical application.
-	However, we did find that in cases where both players were given a set of moves where each had an effective primary reducing move, the results of the validation experiments were 
-
-	%FINISH THIS SECTION
     
-    %We need to do work!
+    Although the experiments we conducted on our system produced favorable utilities, our validation metrics indicate that they are not useful for true combat scenarios. The invalidations are mostly likely due to inadequacies of the utility function, which did not take into account that the movelists generated could make it impossible for one or both players to win through strategy. However, we did find that in cases where both players were given a set of moves where each had an effective primary reducing move, the results of the validation experiments were more interesting.
+    
+    However, the results produced by the system did demonstrate the effectiveness of a Vector-based approach over Trees. Analysis indicates that by limiting the search space, it was easier to find better results and avoid untenable results. It is possible that a hybrid Tree/Vector approach could find a happy medium between the wide-ranging Trees and the narrowing Vectors. In this case, it would be necessary to explore ways to improve the cross-over algorithm for Trees; results indicate that using a high cross-over rate was ineffective compared to high mutation. 
     
     \section{Future Work}
 
-As indicated by the results of our failed validity tests on the movesets, the most immediate work that needs to be done is a redesign of the utility function calculation. It is possible that given a utility function that takes into account overlooked aspects of the usage in these simulations, movesets which may be applied more practically in a game design could be generated by the system.
-	It would be interesting to look at abstracting the design of the individual moves to provide flexibility for other game engines. In our original design, we proposed a system where every move has a unique function behind it. However, some games use a single formula for every move, and then assign unique attributes on a per-move basis (such as “Base power” or “Accuracy”, in addition to player attributes. Supporting game engines such as these might dramatically alter the search space, but could lead to more tenable results.
-	Finally, we will explore a trending alternative to traditional genetic algorithms called \textit{Novelty Search}, which has been used in research for generating game content dynamically \cite {novelty_search}. The Novelty Search algorithm rewards new behavioral changes in a phenotype, rather than applying a fitness function. By removing the focus on moving towards an objective, which can make it difficult to break out of deceptive local maxima, this algorithm has been shown to be effective for certain problem domains. Given this still inchoate research problem, applying Novelty Search or another variant search algorithm could be a fruitful strategy.
-    
-    
+    As indicated by the results of our failed validity tests on the movelists, the most immediate work that needs to be done is a redesign of the utility function calculation. It is possible that given a utility function that takes into account overlooked aspects of the usage in these simulations, the system could generate more practical movelists.
 
-
+	Another path of research is to abstract the design of the individual moves to provide flexibility for other game engines. In our original design, we proposed a system where every move has a unique function behind it. However, some games use a single formula for every move, and then assign unique attributes on a per-move basis (such as "Base power" or "Accuracy", in addition to player attributes. Supporting game engines such as these might dramatically alter the search space, but could lead to more tenable results.
+    
+	Finally, we will explore a trending alternative to traditional genetic algorithms called \textit{Novelty Search}, which has been used in research for generating game content dynamically \cite{novelty_search}. The Novelty Search algorithm rewards new behavioral changes in a phenotype, rather than applying a fitness function. By removing the focus on moving towards an objective, which can make it difficult to break out of deceptive local maxima, this algorithm has been shown to be effective for certain problem domains. Given this still inchoate research problem, applying Novelty Search or another variant search algorithm could be a fruitful strategy.
+    
 %
 % The following two commands are all you need in the
 % initial runs of your .tex file to
