@@ -7,6 +7,11 @@
 \usepackage{alltt}
 \renewcommand{\ttdefault}{txtt}
 
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\maketitle}{\@copyrightspace}{}{}{}
+\makeatother
+
 \begin{document}
 
 \title{Attribute Learning System}
@@ -54,7 +59,7 @@ A move is an operation that advances a combat from one state to another. A comba
 
 The problem of generating movelists is largely novel, with little prior work. However, there is a significant, growing interest in formal game development, a largely hitherto ad-hoc process. Many of these tools have a prescriptive nature, rather than explicitly generating code. McNaughton, et al. \cite{generative_design_patterns}, for instance, describe how Generative Design Patterns can be used by novice programmers to create components of video games.
 
-On the other hand, Artificial Intelligence research has led to tools that can automate the game development process and enable emergent gameplay. Amato and Shani\cite{reinforcement_strategy} applied Reinforcement Learning to develop adapative enemies that operate on a strategic -- as opposed to tactical -- level. Zook and Riedl \cite{dynamic_difficulty} examine dynamic difficulty adjustment for players with varying degrees of game skill. Their paper focuses on challenge tailoring in a role-playing style game using a temporal player model to assist in predicting future strength. This concept proposes a way for games to self-monitor and adapt based on player action. This concept is interesting in that it, broadly speaking, creates a playable environment in an automated process. Our work builds on these successful studies where AI methods were used to simplify and empower the game development process.
+On the other hand, Artificial Intelligence research has led to tools that can automate the game development process and enable emergent gameplay. Amato and Shani\cite{reinforcement-strategy} applied Reinforcement Learning to develop adapative enemies that operate on a strategic -- as opposed to tactical -- level. Zook and Riedl \cite{dynamic_difficulty} examine dynamic difficulty adjustment for players with varying degrees of game skill. Their paper focuses on challenge tailoring in a role-playing style game using a temporal player model to assist in predicting future strength. This concept proposes a way for games to self-monitor and adapt based on player action. This is similar to the work done by Salge, et al. to develop tactical AIs using Genetic Algorithms\cite{genetic-ai}. The Genetic Algorithm approach was used again in work Hom and Marks\cite{balanced-board-games} to automatically generate balanced board game rules based on popular games such as Reversi and Tic-Tac-Toe. The problem that Hom and Marks overcame was very similar to our problem, except instead of developing an entire game engine, we are only exploring how to develop one key component.
 
 \subsection{Approach}
 
@@ -154,7 +159,7 @@ Unfortunately, although this implementation was described favorably in the liter
     
     \subsubsection{Validation of Trees}
     
-While we performed structural analysis of the our Function Tree implementation, we were doubtful that these structural modifications would have a corresponding impact on the numerical results of the functions. For example, changing a function of the form "Player 1's $1^{st}$ Health + player 2's $1^{st}$ Attack" to use division instead of addition would yield a largely different set of outputs. In order to quantitatively measure the similarity of two functions, we used a two-sample Kolmogorov–Smirnov test. This variant of the KS-test is a non-parametric method for determining if two sets of samples come from the same distribution. 
+While we performed structural analysis of the our Function Tree implementation, we were doubtful that these structural modifications would have a corresponding impact on the numerical results of the functions. For example, changing a function of the form "Player 1's $1^{st}$ Health + player 2's $1^{st}$ Attack" to use division instead of addition would yield a largely different set of outputs. In order to quantitatively measure the similarity of two functions, we used a two-sample Kolmogorov–Smirnov test. This variant of the KS-test is a non-parametric method for determining if two sets of samples come from the same distribution\cite{ks-test}. 
 
 Because the KS-test expects one-dimensional data, the domain of the inputs (normally multivariate) was restricted from the real numbers to [-100,100], and their cross-product treated as a single input. For example, in a system with one primary attribute and one secondary, the Function Tree would have $$|(100) - (-100)|^4 = 1600000000$$ integer inputs and outputs, following the pattern demonstrated in Figure \ref{ks-test-inputs}.
 
@@ -248,7 +253,7 @@ To see the effects of various conditions on the genetic algorithm, these variabl
 
     \subsubsection{Attribute Type Frequencies}
 
-In these tests, we wanted to look at what effect the number of primary and secondary attributes has on the growth of the utility of movelists. Attribute type quantities were tested with combinations of 1 to 2 primary attributes and 1 to 3 secondary attributes. Results of these tests can be seen Figure \ref{attribute_frequency_experiments}. For the Tree implementation, the tests have little effect on the utility outcomes, consistently averaging around 750. The results of the Vector tests indicate a stronger impact - tests conducted with a single primary attribute were yielded a higher maximum utility, with a 1000 utility reached in the tests with a single primary attribute, and both two and three secondary attributes. This testing validated the use of the default single primary attribute with two secondary attributes that was used for the attribute type quantities in the other experiments.
+In these tests, we wanted to look at what effect the number of primary and secondary attributes has on the utility of movelists. Attribute type quantities were tested with combinations of 1 to 2 primary attributes and 1 to 3 secondary attributes. Results of these tests can be seen Figure \ref{attribute_frequency_experiments}. For the Tree implementation, the tests have little effect on the utility outcomes, consistently averaging around 750. The results of the Vector tests indicate a stronger impact - tests conducted with a single primary attribute were yielded a higher maximum utility, with a 1000 utility reached in the tests with a single primary attribute, and both two and three secondary attributes. This testing validated the use of the default single primary attribute with two secondary attributes that was used for the attribute type quantities in the other experiments.
 
 \begin{figure*}[Ht]
     \centering
@@ -259,9 +264,9 @@ In these tests, we wanted to look at what effect the number of primary and secon
     
     \subsection{Validation of Moves}
 
-To look at the effectiveness of some of the 1000-utility moves generated by our solution, we chose to validate the movesets by using a strategic Minimax player, and a nonstrategic (random) or lower level Minimax player to simulate a battle with the moves. If the moves produced were viable, then the expected outcome of this testing would show that a strategic player would outperform and defeat a random or lower level player.
+To look at the effectiveness of some of the 1000-utility moves generated by our solution, we chose to validate the movesets by using a strategic Minimax player, and a nonstrategic (random) or lower level Minimax player to simulate a battle with the moves. With an ideal movelist, the expected outcome of this testing would show that a strategic player would outperform and defeat a less intelligent player.
 
-The results of this testing were unexpectedly negative. In many battle simulations that we analyzed, the lower level Minimax was able to defeat the higher level Minimax player, and in some cases the random player was able to defeat the Minimax player. After looking at the movesets on a case by case basis, it was found that the test results which did not follow the prediction were largely due to an issue in the way moves that affected the primary status of the opponent had been formed. In these cases the losing player often had no move that would be able to reduce a primary attribute of the other player in order to win.
+The results of this testing were unexpectedly negative. In many battle simulations that we analyzed, the lower level Minimax and random players were able to defeat the higher level Minimax player. After looking at the movesets on a case by case basis, it was found that the test results which did not follow the prediction were largely due to an issue in the way moves that affected the primary status of the opponent had been formed. In these cases the losing player often had no move that would be able to reduce a primary attribute of the other player in order to win.
     
     \section{Conclusion}
     
