@@ -1,6 +1,6 @@
 CONFIG = {}
 CONFIG['population_size'] = 500
-CONFIG['iterations_limit'] = 25
+CONFIG['iterations_limit'] = 60
 CONFIG['retain_percent'] = .3 
 CONFIG['mutation_rate'] =  .5
 CONFIG['radiation_amount'] = 5

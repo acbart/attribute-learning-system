@@ -54,6 +54,7 @@ if __name__ == "__main__":
             cros_log.write("%d, %f, %d, %d\n" % (d1, d2, len(dad), len(mom)))
         print np.mean(distances1), np.std(distances1), dads, moms
         cros_log.close()
+    elif check == "vector_cross_numerical":
     elif check == "vector_mutation_numerical":
         cros_log = open("vect_mut_num.csv", "w")
         for radiation in xrange(1, 100):
