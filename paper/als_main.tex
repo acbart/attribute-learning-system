@@ -14,8 +14,8 @@
 
 \begin{document}
 
-\title{Attribute Learning System}
-\subtitle{[Applying Genetic Algorithms to Improve RPG Combat Mechanics]} % Dude that title sucks
+\title{Movelist Learning System}
+\subtitle{[Applying Genetic Algorithms to Automate Development of Balanced Turn-Based Combat Mechanics in Role-Playing-Games]}
 
 
 \numberofauthors{2} 
@@ -38,7 +38,7 @@ K. Alnajar\\
 
 \maketitle
 \begin{abstract}
-Having a good set of moves for players to choose from in role-playing games (RPG) is essential for the game to succeed.  Often times in an RPG, the players have various attributes which these moves can effect and coming up with good formulas for this is not easy. The process of creating an effective set of moves can take time and can be a difficult challenge to overcome in the design process. This paper propeses an implementation to effectively create these moves using a genetic algorithm implementation. Two seperate implementation styles of genetic algorithms are used, a tree style and a vector style. The results show that the vector styled approach for the genetic algorithm shows promising results in move set creation.
+Video game development is a massive industry, and one of the most popular genres to develop are Role-Playing Games. These games often involve a turn-based combat mechanic, which can be extremely time-consuming to create and balance. In order to automate this process, we designed and applied a Genetic Algorithm to the problem of generating effective movelists. Our results show that although the approach is intrinsically sound, more work is required before the output of the system is ready for real-world use.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -238,6 +238,13 @@ In order to collect data on the effectiveness of the system and validate the mov
     \subsubsection{Tree vs. Vector}
 
 Both the tree and vector implementations were tested identically in the experiments under the various conditions. The results of the highest utilities of each type of implementation across the iterations were then plotted and analyzed. The vector implementation significantly outperformed the tree implementation across nearly every experiment, with the highest tree utility failing to break a value of 825-utility, whereas the vector implementation reached a 1000-utility score multiple times across various experiments. 
+
+\begin{figure}[h]
+    \centering
+    
+    \caption{Examples of top-performing outputs of the Movelist Learning System}
+    \label{example-results}
+\end{figure}
 
     \subsubsection{Mutation Rate vs. Cross-over Rate vs. Parents Retained}
 

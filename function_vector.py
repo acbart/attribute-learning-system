@@ -68,7 +68,7 @@ class FunctionVector(object):
         return len(self.coeffecients)
 
     def __str__(self):
-        return str(self.coeffecients) + " + " + str(self.constant)
+        return self.feature + " = " + str(self.coeffecients) + " + " + str(self.constant)
 
     def short_string(self):
         return "(" + abbreviate(self.feature) + "=" + "{:.2f}".format(self.constant) + "".join([("%+.1f*%s" % (value, abbreviate(key))) for key, value in self.coeffecients.iteritems()]) + ")"
